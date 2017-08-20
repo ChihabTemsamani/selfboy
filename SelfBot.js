@@ -5,7 +5,7 @@ clt.on('ready',()=>{
 	console.log("Logged in as "+clt.user.tag+"!");
 });
 clt.on("message",msg=>{
-	if (/#5509$/.test(msg.author.tag)) {
+	if (msg.author.tag==clt.user.tag) {
 		if (msg.content=="kill") {
 			msg.channel.send("*Bot shutdown...*").then(clt.user.destroy).then(process.exit).catch(process.exit);
 		} else if (/^!!sd /gmi.test(msg.content)) {
