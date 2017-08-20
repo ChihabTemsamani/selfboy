@@ -1,4 +1,4 @@
-﻿const Discord = require("discord.js");
+const Discord = require("discord.js");
 const clt = new Discord.Client();
 clt.removeAllListeners();
 clt.on('ready',()=>{
@@ -15,20 +15,16 @@ clt.on("message",msg=>{
 			msg.delete();
 		} else if (/^eval /i.test(msg.content)) {
 			try {
-				eval(msg.content.replace(/^eval /i, ""));
+				msg.reply(eval(msg.content.replace(/^eval /i, "")));
 			} catch(e) {
 				msg.channel.send("```js\n" + `${e.name}: ${e.message}` + "\n```");
 			}
 		}
 	}
-	if (/ gay /gi.test(msg.content)) {
+	if (/( |^)gay( |$)/gi.test(msg.content)) {
 		msg.react(":gay_pride_flag:").catch(()=>{msg.react("gay_pride_flag")});
 	}
 });
 clt.on("messageReactionAdd",(emj,usr)=>{
-	if (/#5509$/.test(emj.message.author.tag)&&/grin/.test(emj.name)) {
-		emj.message.clearReactions();
-		return;
-	}
 	emj.message.react(emj.emoji);
 });
