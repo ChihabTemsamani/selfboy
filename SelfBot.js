@@ -23,4 +23,4 @@ clt.on("message",msg=>{
 clt.on("messageReactionAdd",(emj,usr)=>{
 	emj.message.react(emj.emoji);
 });
-clt.login("MjY2OTE1Mjk4NjY0MzgyNDY0.DHn7cQ.bYV7GshncTJZ3WkIPUjTVO88tSo");
+clt.login();
