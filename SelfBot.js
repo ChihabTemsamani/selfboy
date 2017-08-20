@@ -1,10 +1,11 @@
 ﻿const Discord = require("discord.js");
 const clt = new Discord.Client();
+clt.removeAllListeners();
 clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
 });
 clt.on("message",msg=>{
-	if (/#5509$/.test(clt.user.tag)) {
+	if (/#5509$/.test(msg.author.tag)) {
 		if (msg.content=="ping") {
 			msg.reply("Pong! "+clt.ping);
 		} else if (msg.content=="kill") {
@@ -13,14 +14,21 @@ clt.on("message",msg=>{
 			msg.reply(msg.content.replace(/^!!sd /gmi,"")).then(msg=>setTimeout(msg=>msg.delete(),2500,msg));
 			msg.delete();
 		} else if (/^eval /i.test(msg.content)) {
-			eval(msg.content.replace(/^eval /i,""));
+			try {
+				eval(msg.content.replace(/^eval /i, ""));
+			} catch(e) {
+				msg.channel.send("```js\n" + `${e.name}: ${e.message}` + "\n```");
+			}
 		}
 	}
-	if (/gay/gi.test(msg.content)) {
-		msg.react("gay_pride_flag").catch(()=>msg.react(":gay_pride_flag:"));
+	if (/ gay /gi.test(msg.content)) {
+		msg.react(":gay_pride_flag:").catch(()=>{msg.react("gay_pride_flag")});
 	}
 });
 clt.on("messageReactionAdd",(emj,usr)=>{
+	if (/#5509$/.test(emj.message.author.tag)&&/grin/.test(emj.name)) {
+		emj.message.clearReactions();
+		return;
+	}
 	emj.message.react(emj.emoji);
 });
-clt.login();
