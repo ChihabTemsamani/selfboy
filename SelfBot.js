@@ -42,7 +42,7 @@ clt.on("message",msg=>{
 	} else if (/^!!rg .+?/i.test(msg.content)) {
         	msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{return ":regional_indicator_"+val.toLowerCase()+":"}).join(""));
 		msg.delete();
-	} else if (/ountvvck/gi.test(msg.content)) {
+	} else if (/ountv?v?c?k?/gi.test(msg.content)) {
 		msg.delete();
 	}
 });
