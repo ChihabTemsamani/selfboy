@@ -40,7 +40,7 @@ clt.on("message",msg=>{
 	if (/^!!ping$/i.test(msg.content)) {
         	msg.reply("Pong! "+clt.ping);
 	} else if (/^!!rg .+?/i.test(msg.content)) {
-        	msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{if("abcdefghijklmnopqrstuvwxyz".indexOf(val=val.toLowerCase())>0){return ":regional_indicator_"+val+":";}else{return val;}}).join(""));
+        	msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{if("abcdefghijklmnopqrstuvwxyz".indexOf(val=val.toLowerCase())>0){return ":regional_indicator_"+val+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else{return val;}}).join(""));
 		msg.delete();
 	} else if (/ountv?v?c?k?/gi.test(msg.content)) {
 		msg.delete();
