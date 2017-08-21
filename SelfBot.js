@@ -34,13 +34,13 @@ clt.on("message",msg=>{
 			}
 		}
 	}
-	if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/((u|o)w(u|o))|New Game/gi.test(msg.guild.name)&&!(/#5509$/.test(msg.author.tag)&&msg.content.startsWith("`"))) {
+	if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/((u|o)w(u|o))|New Game/gi.test(msg.guild.name)&&!(/#5509$/.test(msg.author.tag)&&msg.content.includes("```"))) {
         	msg.react("🏳️‍🌈");
 	}
 	if (/^!!ping$/i.test(msg.content)) {
         	msg.reply("Pong! "+clt.ping);
 	} else if (/^!!rg .+?/i.test(msg.content)) {
-        	msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{return ":regional_indicator_"+val.toLowerCase()+":"}).join(""));
+        	msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{if("abcdefghijklmnopqrstuvwxyz".indexOf(val=val.toLowerCase())>0){return ":regional_indicator_"+val+":";}else{return val;}}).join(""));
 		msg.delete();
 	} else if (/ountv?v?c?k?/gi.test(msg.content)) {
 		msg.delete();
