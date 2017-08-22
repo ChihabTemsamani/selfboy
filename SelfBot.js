@@ -62,7 +62,9 @@ clt.on("message",msg=>{
         	for (var stp = 0; stp < rep; stp++) {
                 	msg.reply(dt);
         	}
-        }
+        } else if (/^!!id$/i.test(msg.content)) {
+		msg.reply("<\\@"+msg.author.id+">");
+	}
 	} catch (a) {
 		msg.react("❌");
 		msg.channel.send("```js\n" + `${a.lineNumber} : ${a.name}: ${a.message}` + "\n```");
