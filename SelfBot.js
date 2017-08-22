@@ -19,14 +19,10 @@ clt.on("message",msg=>{
         		msg.delete();
 			return;
         	} else if (/^!!eval /i.test(msg.content)) {
-        		try {
-                		msg.channel.send("```js\n"+eval(msg.content.replace(/^!!eval /i, ""))+"```");
-           		} catch(e) {
-                		msg.channel.send("```js\n" + `${e.name}: ${e.message}` + "\n```");
-        		}
+                	msg.channel.send("```js\n"+eval(msg.content.replace(/^!!eval /i, ""))+"```");
+			msg.react("✅");
 		} else if (/^!!rp \d{1,3} /i.test(msg.content)) {
-        		var rep = msg.content.match(/\d{1,3}/)[0];
-        		var dt = msg.content.replace(/^!!rp .*? /i,"");
+        		let rep = Number(msg.content.split(" ")[1]||1), dt = msg.content.split(" ")[2]||"null";
         		msg.delete();
         		for (var stp = 0; stp < rep; stp++) {
                 		msg.channel.send(dt);
@@ -36,6 +32,13 @@ clt.on("message",msg=>{
         		msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation"}[val]){return ":"+vl+":";}else{return val;}}).join(""));
 			msg.delete();
 			return;
+		} else if (/^!!afk .*?/i.test(msg.content)) {
+			let md = false;
+			clt.user.setAFK(md=msg.content.replace(/^!!afk /i,"")==="true");
+			msg.reply(" you are "+(md?"":"not ")+"'away from keyboard'");
+		} else if (/^!!game .*?/i.test(msg.content)) {
+			clt.user.setGame(msg.content.replace(/^!!game /i,""));
+			msg.delete();
 		}
 	}
 	if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/((u|o)w(u|o))|New Game/gi.test(msg.guild.name)&&!(/#5509$/.test(msg.author.tag)&&msg.content.includes("```"))) {
@@ -44,7 +47,7 @@ clt.on("message",msg=>{
 	if (/^!!ping$/i.test(msg.content)) {
         	msg.reply("Pong! "+clt.ping);
 	} else if (/^!!rg .+?/i.test(msg.content)) {
-        	msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation"}[val]){return ":"+vl+":";}else{return val;}}).join(""));
+        	msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_doller_sign"}[val]){return ":"+vl+":";}else{return val;}}).join(""));
 		msg.delete();
 	} else if (/(\W| |^)ountv?v?c?k?($| |\W)/gi.test(msg.content)) {
 		msg.delete();
@@ -54,19 +57,16 @@ clt.on("message",msg=>{
            	msg.reply(msg.content.replace(/^!!sd /i,"")).then(msg=>setTimeout(msg=>msg.delete(),2500,msg));
         	msg.delete();
         } else if (/^!!rp \d{1,2} /i.test(msg.content)) {
-        	let rep = msg.content.match(/\d{1,3}/g)[0]||1, dt = msg.content.replace(/^!!rp .*? ?/i,"");
+        	let rep = Number(msg.content.split(" ")[1]||1), dt = msg.content.split(" ")[2]||"null";
         	msg.delete();
         	for (var stp = 0; stp < rep; stp++) {
                 	msg.reply(dt);
         	}
-        } else if (/^!!afk .*?/i.test(msg.content)) {
-		let md = false;
-		msg.author.setAFK(md=msg.content.replace(/^!!afk /i,"")==="true");
-		msg.reply(" you are "+(md?"":"not ")+"'away from keyboard'");
-	} else if (/^!!game .*?/i.test(msg.content)) {
-		msg.author.setGame(msg.content.replace(/^!!game /i,""));
+        }
+	} catch (a) {
+		msg.react("❌");
+		msg.channel.send("```js\n" + `${a.lineNumber} : ${a.name}: ${a.message}` + "\n```");
 	}
-	} catch (a) {msg.channel.send("```js\n" + `${a.lineNumber} : ${a.name}: ${a.message}` + "\n```");}
 });
 clt.on("messageReactionAdd",(emj,usr)=>{
 	if (!emj.message.guild) {
