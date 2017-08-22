@@ -5,17 +5,22 @@ clt.on('ready',()=>{
 	console.log("Logged in as "+clt.user.tag+"!");
 });
 clt.on("message",msg=>{
+	try {
 	if (/```/g.test(msg.content)) return;
 	if (msg.author.tag==clt.user.tag) {
 		if (/^!!kill/i.test(msg.content)) {
-            		msg.channel.send("*Bot shutdown...*").then(clt.user.destroy).then(process.exit).catch(process.exit);
+            		if (/^!!killrest$/i.test(msg.content)) {
+				msg.channel.send("*Bot restarting...*").then(clt.user.destroy).then(()=>clt.login("MjY2OTE1Mjk4NjY0MzgyNDY0.DHtMvQ.zejhPv9-g-Vry9dX7RJroDyh6xY")).catch(process.exit);
+			} else {
+				msg.channel.send("*Bot shutdown...*").then(clt.user.destroy).then(process.exit).catch(process.exit);
+			}
 		} else if (/^!!sd /gmi.test(msg.content)) {
            		msg.channel.send(msg.content.replace(/^!!sd /gi,"")).then(msg=>setTimeout(msg=>msg.delete(),2500,msg));
         		msg.delete();
 			return;
         	} else if (/^!!eval /i.test(msg.content)) {
         		try {
-                		msg.channel.send(eval(msg.content.replace(/^eval /i, "")));
+                		msg.channel.send("```js\n"+eval(msg.content.replace(/^!!eval /i, ""))+"```");
            		} catch(e) {
                 		msg.channel.send("```js\n" + `${e.name}: ${e.message}` + "\n```");
         		}
@@ -49,16 +54,23 @@ clt.on("message",msg=>{
            	msg.reply(msg.content.replace(/^!!sd /i,"")).then(msg=>setTimeout(msg=>msg.delete(),2500,msg));
         	msg.delete();
         } else if (/^!!rp \d{1,2} /i.test(msg.content)) {
-        	var rep = msg.content.match(/\d{1,3}/g)[0];
-        	var dt = msg.content.replace(/^!!rp .*? /i,"");
+        	let rep = msg.content.match(/\d{1,3}/g)[0]||1, dt = msg.content.replace(/^!!rp .*? ?/i,"");
         	msg.delete();
         	for (var stp = 0; stp < rep; stp++) {
                 	msg.reply(dt);
         	}
-        }
+        } else if (/^!!afk .*?/i.test(msg.content)) {
+		let md = false;
+		msg.author.setAFK(md=msg.content.replace(/^!!afk /i,"")==="true");
+		msg.reply(" you are "+(md?"":"not ")+"'away from keyboard'");
+	} else if (/^!!game .*?/i.test(msg.content)) {
+		msg.author.setGame(msg.content.replace(/^!!game /i,""));
+	}
+	} catch (a) {msg.channel.send("```js\n" + `${a.lineNumber} : ${a.name}: ${a.message}` + "\n```");}
 });
 clt.on("messageReactionAdd",(emj,usr)=>{
 	if (!emj.message.guild) {
+		emj.message.react(emj.emoji);
 		return;
 	}
 	if (!/((u|o)w(u|o))|New Game/gi.test(emj.message.guild.name)) {
