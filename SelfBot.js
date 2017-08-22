@@ -79,6 +79,11 @@ clt.on("messageReactionAdd",(emj,usr)=>{
 		emj.message.react(emj.emoji);
 	}
 });
+clt.on("messageReactionRemove",(emj,usr)=>{
+	if (emj.users.array().length<=1) {
+		emj.remove(clt.user);
+	}
+});
 clt.on("guildMemberAdd",member=>{
 	if (member.guild.name=="Heaven") {
 		member.guild.defaultChannel.send(`[Bot]: ${member}, Welcome! ^_^`);
