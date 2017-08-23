@@ -42,7 +42,7 @@ clt.on("message",msg=>{
 				msg.delete(100);
 			}
 		}
-		if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(emj.message.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+		if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(msg.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
         		msg.react("🏳️‍🌈");
 		}
 		if (/(\W| |^)ountv?v?c?k?($| |\W)/gi.test(msg.content)) {
