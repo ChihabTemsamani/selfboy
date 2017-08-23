@@ -10,9 +10,9 @@ clt.on("message",msg=>{
 		if (msg.author.id==clt.user.id) {
 			if (/^!!kill/i.test(msg.content)) {
 				if (/^!!killrest$/i.test(msg.content)) {
-					msg.channel.send("*Bot restarting...*").then(clt.destroy).then(()=>clt.login(tkn)).catch(process.exit);
+					msg.channel.send("*Bot restarting...*").then(clt.user.destroy).then(()=>clt.login(tkn)).catch(process.exit);
 				} else {
-					msg.channel.send("*Bot shutdown...*").then(clt.user.destroy).then(process.exit).catch(process.exit);
+					msg.channel.send("*Bot shutdown...*").then(clt.destroy).catch(process.exit);
 				}
 			} else if (/^!!sd /gmi.test(msg.content)) {
 				msg.channel.send(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500));
