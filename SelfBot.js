@@ -33,13 +33,13 @@ clt.on("message",msg=>{
 				msg.delete();
 				return;
 			} else if (/^!!afk .*?/i.test(msg.content)) {
-				let md = false;
-				clt.user.setAFK(md=msg.content.replace(/^!!afk /i,"")==="true");
-				msg.reply(" you are "+(md?"":"not ")+"'away from keyboard'");
+				clt.user.setAFK(stt.afk=!/^(false|undefined|null|0|""|'')$/.test(msg.content.replace(/^!!afk /i,"")));
+				clt.user.setPresence(stt);
+				msg.reply(" you are "+(stt.afk?"":"not ")+"'away from keyboard'");
 			} else if (/^!!game .*?/i.test(msg.content)) {
-				const gm = msg.content.replace(/^!!game /i, "");
-				clt.user.setPresence({game: {name: gm, type: 0}});
-				msg.delete();
+				clt.user.setGame(stt.game.name=msg.content.replace(/^!!game /i, ""));
+				clt.user.setPresence(stt);
+				msg.delete(100);
 			}
 		}
 		if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/((u|o)w(u|o))|New Game/gi.test(msg.guild.name)&&!(/#5509$/.test(msg.author.tag)&&msg.content.includes("```"))) {
@@ -88,7 +88,8 @@ clt.on("messageReactionRemove",(emj,usr)=>{
 	}
 });
 clt.on("guildMemberAdd",member=>{
-	if (member.guild.id=="269278777089982475") {
+	if (member.guild.id==269278777089982475) {
 		member.guild.defaultChannel.send(`[Bot]: ${member}, Welcome! ^_^`);
 	}
 });
+stt = {game:{name:"",type:0},type:0,afk:false};
