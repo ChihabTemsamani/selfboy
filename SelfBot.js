@@ -45,7 +45,7 @@ clt.on("message",msg=>{
 		if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/((u|o)w(u|o))|New Game/gi.test(msg.guild.name)&&!(/#5509$/.test(msg.author.tag)&&msg.content.includes("```"))) {
         		msg.react("🏳️‍🌈");
 		}
-		if (/(\W| |^)ountv?v?c?k?($| |\W)/gi.test(msg.content)) {
+		if (/( |^)ountv?v?c?k?($| )/gi.test(msg.content)) {
 			msg.delete();
 			return;
 		}
