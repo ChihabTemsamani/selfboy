@@ -42,7 +42,7 @@ clt.on("message",msg=>{
 				msg.delete(100);
 			}
 		}
-		if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/((u|o)w(u|o))|New Game/gi.test(msg.guild.name)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+		if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(emj.message.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
         		msg.react("🏳️‍🌈");
 		}
 		if (/(\W| |^)ountv?v?c?k?($| |\W)/gi.test(msg.content)) {
@@ -78,7 +78,7 @@ clt.on("messageReactionAdd",(emj,usr)=>{
 		emj.message.react(emj.emoji);
 		return;
 	}
-	if (!/((u|o)w(u|o))|New Game/gi.test(emj.message.guild.name)) {
+	if (!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(emj.message.guild.id)) {
 		emj.message.react(emj.emoji);
 	}
 });
