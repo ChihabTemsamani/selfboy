@@ -94,7 +94,7 @@ clt.on("message",msg=>{
             msg.reply(tmp.join("\t"));
         } else if (/^!!servid$/i.test(msg.content)) {
             msg.reply("<\\#"+msg.guild.id+">");
-        } else if (/^gping$/i.test(msg.content)) {
+        } else if (/^!!gping$/i.test(msg.content)) {
 	    let va = 0;
 	    clt.pings.forEach(val=>va+=val);
 	    va /= clt.pings.length;
