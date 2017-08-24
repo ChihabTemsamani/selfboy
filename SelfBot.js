@@ -32,8 +32,8 @@ clt.on("message",msg=>{
                 msg.channel.send(msg.content.split(" ").slice(1).join(" ")||"null");
                 msg.delete();
             } else if (/^!!rg .+?/i.test(msg.content)) {
-                msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation"}[val]){return ":"+vl+":";}else{return val;}}).join(""));
-                msg.delete();
+                msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"," ":"  "}[val]){return ":"+vl+":";}else{return val;}}).join(""));
+            	msg.delete();
                 return;
             } else if (/^!!afk .*?/i.test(msg.content)) {
                 clt.user.setAFK(stt.afk=!/^(false|undefined|null|0|""|'')$/.test(msg.content.replace(/^!!afk /i,"")));
@@ -55,7 +55,7 @@ clt.on("message",msg=>{
         if (/^!!ping$/i.test(msg.content)) {
             msg.reply("Pong! "+clt.ping);
         } else if (/^!!rg .+?/i.test(msg.content)) {
-            msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]){return ":"+vl+":";}else{return val;}}).join(""));
+            msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"," ":"  "}[val]){return ":"+vl+":";}else{return val;}}).join(""));
             msg.delete();
         } else if (/^!!he?lp/i.test(msg.content)) {
             msg.reply("```\n!!ping\n!!rg text --> converts your speech to emojis\n!!hlp\n!!sd text --> sends message and deletes after 0.25 seconds\n!!rp [number] text --> repeats text 'number' times\n!!id [mention(s)] --> user's/channel's id\n!!chid --> channel's id\n!!servid --> server's id.\n\nbot automatically reacts with :gay_pride_flag: when message contains the word 'gay' and upvotes reactions...\nDM @ValentinHacker#5509 for disable...\n\n```<https://github.com/ValentinHacker/Vale>");
@@ -71,6 +71,7 @@ clt.on("message",msg=>{
         } else if (/^!!rp .+/i.test(msg.content)) {
             msg.reply(msg.content.split(" ").slice(1).join(" ")||"null");
             msg.delete();
+	    return;
         } else if (/^!!id$/i.test(msg.content)) {
             msg.reply("<\\@"+msg.author.id+">");
         } else if (/^!!id /i.test(msg.content)) {
