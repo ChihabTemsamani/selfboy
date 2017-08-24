@@ -32,7 +32,7 @@ clt.on("message",msg=>{
                 msg.channel.send(msg.content.split(" ").slice(1).join(" ")||"null");
                 msg.delete();
             } else if (/^!!rg .+?/i.test(msg.content)) {
-                msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"," ":"  "}[val]){return ":"+vl+":";}else{return val;}}).join(""));
+                msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"," ":"  "}[val]){return ":"+vl+":";}else{return val;}}).join(""));
             	msg.delete();
                 return;
             } else if (/^!!afk .*?/i.test(msg.content)) {
