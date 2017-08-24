@@ -92,7 +92,12 @@ clt.on("message",msg=>{
             msg.reply(tmp.join("\t"));
         } else if (/^!!servid$/i.test(msg.content)) {
             msg.reply("<\\#"+msg.guild.id+">");
-        }
+        } else if (/^gping$/i.test(msg.content)) {
+	    var va = 0;
+	    clt.pings.forEach(val=>va+=val);
+	    va /= clt.pings.length;
+	    msg.reply(va);
+	}
     } catch (a) {
         msg.react("❌");
         msg.channel.send("```js\n" + `${a.lineNumber} : ${a.name}: ${a.message}` + "\n```");
