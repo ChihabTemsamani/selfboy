@@ -58,7 +58,7 @@ clt.on("message",msg=>{
             msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]){return ":"+vl+":";}else{return val;}}).join(""));
             msg.delete();
         } else if (/^!!he?lp/i.test(msg.content)) {
-            msg.reply("```\n!!ping\n!!rg text --> converts your speech to emojis\n!!hlp\n!!sd text --> sends message and deletes after 0.25 seconds\n!!rp number text --> repeats text 'number' times\n!!id --> user's id.\n\nbot automatically reacts with :gay_pride_flag: when message contains the word 'gay' and upvotes reactions...\nDM @ValentinHacker#5509 for disable...\n\n```<https://github.com/ValentinHacker/Vale>");
+            msg.reply("```\n!!ping\n!!rg text --> converts your speech to emojis\n!!hlp\n!!sd text --> sends message and deletes after 0.25 seconds\n!!rp [number] text --> repeats text 'number' times\n!!id [mention(s)] --> user's/channel's id\n!!chid --> channel's id\n!!servid --> server's id.\n\nbot automatically reacts with :gay_pride_flag: when message contains the word 'gay' and upvotes reactions...\nDM @ValentinHacker#5509 for disable...\n\n```<https://github.com/ValentinHacker/Vale>");
         } else if (/^!!sd /gmi.test(msg.content)) {
             msg.reply(msg.content.replace(/^!!sd /i,"")).then(msg=>setTimeout(msg=>msg.delete(),2500,msg));
             msg.delete();
@@ -78,7 +78,20 @@ clt.on("message",msg=>{
             msg.mentions.users.forEach(function(usr) {
                 tmp.push(`${usr} : <\\@${usr.id}>`);
             });
+	    msg.mentions.channels.forEach(function(chn) {
+                tmp.push(`${chn} : <\\#${chn.id}>`);
+            });
             msg.reply(tmp.join("\t"));
+        } else if (/^!!chid$/i.test(msg.content)) {
+            msg.reply("<\\#"+msg.channel.id+">");
+        } else if (/^!!chid /i.test(msg.content)) {
+            var tmp = [];
+            msg.mentions.channels.forEach(function(chn) {
+                tmp.push(`${chn} : <\\#${chn.id}>`);
+            });
+            msg.reply(tmp.join("\t"));
+        } else if (/^!!servid$/i.test(msg.content)) {
+            msg.reply("<\\#"+msg.guild.id+">");
         }
     } catch (a) {
         msg.react("❌");
