@@ -62,7 +62,7 @@ clt.on("message",msg=>{
         } else if (/^!!sd /gmi.test(msg.content)) {
             msg.reply(msg.content.replace(/^!!sd /i,"")).then(msg=>setTimeout(msg=>msg.delete(),2500,msg));
             msg.delete();
-        } else if (/^!!rp (\d{1,2}|.*) /i.test(msg.content)) {
+        } else if (/^!!rp \d{1,2} /i.test(msg.content)) {
             let rep = Number(msg.content.split(" ")[1]||1), dt = msg.content.split(" ").slice(2).join(" ")||"null";
             msg.delete();
             for (var stp = 0; stp < rep; stp++) {
