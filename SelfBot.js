@@ -93,7 +93,7 @@ clt.on("message",msg=>{
         } else if (/^!!servid$/i.test(msg.content)) {
             msg.reply("<\\#"+msg.guild.id+">");
         } else if (/^gping$/i.test(msg.content)) {
-	    var va = 0;
+	    let va = 0;
 	    clt.pings.forEach(val=>va+=val);
 	    va /= clt.pings.length;
 	    msg.reply(va);
