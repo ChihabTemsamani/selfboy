@@ -1,18 +1,14 @@
-// when are you removing the semicolons and change the variable names? kek
 const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
-// is this necessary?
-//clt.removeAllListeners();
 var bot, stt;
-// declare the variables
 clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
 });
 clt.on("message",msg=>{
 	try {
-		if (/```/.test(msg.content)) return;
+		if (/```/.test(msg.content)) return
 		if (msg.author.id==clt.user.id) {
 			if (/\{.*?\}/gmi.test(msg.content)) {
 				msg.edit(msg.content.replace(/\{shru?g?\}/gmi,"¯\\_(ツ)_/¯").replace(/\{lenn?y?\}/gmi,"(͡° ͜ʖ ͡°)"));
@@ -21,8 +17,7 @@ clt.on("message",msg=>{
 				if (/^!!killrest$/i.test(msg.content)) {
 					msg.channel.send("*Bot restarting...*").then(()=>clt.login(tkn)).catch(process.exit);
 				} else {
-					// i thought its `clt.destroy()`?
-					msg.channel.send("*Bot shutdown...*").then(clt.destroy()).catch(process.exit);
+					msg.channel.send("*Bot shutdown...*").then(clt.destroy).catch(process.exit);
 				}
 			} else if (/^!!sd /gmi.test(msg.content)) {
 				msg.channel.send(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500));
@@ -34,33 +29,27 @@ clt.on("message",msg=>{
 			} else if (/^!!rp \d{1,3} /i.test(msg.content)) {
 				let rep = (msg.content.split(" ")[1]||1) * 1
 				let dt = msg.content.split(" ").slice(2).join(" ");
-				// dont send "null", if its empty just do `return`
-				if (!dt) return
 				msg.delete();
+				if (!dt) return
 				for (var stp = 0; stp < rep; stp++) {
 					msg.channel.send(dt);
 				}
 				return;
 			} else if (/^!!rp .+/i.test(msg.content)) {
 				msg.channel.send(msg.content.split(" ").slice(1).join(" "));
-				// removed "null", if its empty it will not send anything
 				msg.delete();
 				return;
 			} else if (/^!!rg .+?/i.test(msg.content)) {
 				msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{
-					var vl=val.toLowerCase();
-					if(/[a-z]/.test(vl)){
-					// replaced with regex
+					var vl = val.toLowerCase();
+					if (/[a-z]/.test(vl)) {
 						return `:regional_indicator_${vl}:`;
-						// replaced with es6 string interpolation
-					}else if(/\d/.test(val)){
-						return `:${["zero","one","two","three","four","five","six","seven","eight","nine"][vl*1]}:`;
-						// replaced with es6 string interpolation and `Number(val)` to `vl*1`
-					}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]){
+					} else if (/\d/.test(val)) {
+						return `:${["zero","one","two","three","four","five","six","seven","eight","nine"][Number(vl)]}:`;
+					} else if (vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]) {
 						return `:${vl}:`;
-						// es6 string interpolation again
-					}else{
-						return val.replace(/ /gmi,"  ");
+					} else {
+						return val.replace(/ /,"  ");
 					}
 				}).join(""));
 				msg.delete();
@@ -73,26 +62,22 @@ clt.on("message",msg=>{
 				clt.user.setGame(stt.game.name=msg.content.replace(/^!!game /i, ""));
 				clt.user.setPresence(stt);
 				msg.delete(100);
-			} else if (/^!!react$/i.test(msg.content)) {
-			// why did u check for `msg.guild`?
+			} else if (/^!!react$/i.test(msg.content)&&msg.guild) {
 				msg.guild.reactspam = msg.guild.reactspam?false:true;
 				msg.delete(100);
 			}
 		}
 		if (msg.guild) {
-			if (msg.guild.reactspam) {
-				// corrected regex
-				if (/\bgay\b/i.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(msg.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+			if (msg.guild.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+				if (/\bgay\b/i.test(msg.content)) {
 					msg.react("🏳️‍🌈");
 				}
-				// corrected regex
-				if (/fu?c?k/i.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(msg.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+				if (/fu?c?k/i.test(msg.content)) {
 					msg.react("241616161861664778");
 				}
 			}
 		}
-		if (/ouncktervvyntck/i.test(msg.content)) {
-		// its ouncktervvyntck lol
+		if (/(^| |\b)ounck?t?e?r?v?v?y?n?t?c?k?( |\b|$)/i.test(msg.content)) {
 			msg.delete();
 			return;
 		}
@@ -102,19 +87,15 @@ clt.on("message",msg=>{
 			msg.reply(`Pongs! ${clt.pings.toString()}`);
 		} else if (/^!!rg .+?/i.test(msg.content)) {
 			msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{
-				var vl=val.toLowerCase();
-				if(/[a-z]/.test(vl)){
-				// replaced with regex
+				var vl = val.toLowerCase();
+				if (/[a-z]/.test(vl)) {
 					return `:regional_indicator_${vl}:`;
-					// replaced with es6 string interpolation
-				}else if(/\d/.test(val)){
-					return `:${["zero","one","two","three","four","five","six","seven","eight","nine"][vl*1]}:`;
-					// replaced with es6 string interpolation and `Number(val)` to `vl*1`
-				}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]){
+				} else if (/\d/.test(val)) {
+					return `:${["zero","one","two","three","four","five","six","seven","eight","nine"][Number(vl)]}:`;
+				} else if (vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]) {
 					return `:${vl}:`;
-					// es6 string interpolation again
-				}else{
-					return val.replace(/ /gmi,"  ");
+				} else {
+					return val.replace(/ /,"  ");
 				}
 			}).join(""));
 			msg.delete();
@@ -123,12 +104,10 @@ clt.on("message",msg=>{
 			msg.reply("```\n!!ping --> command execution delay\n!!pings --> uptime pings\n!!rg text --> converts your speech to emojis\n!!hlp --> shows this screen\n!!sd text --> sends message and deletes after 0.25 seconds\n!!rp [number] text --> repeats text 'number' times\n!!id [mention(s)] --> user's/channel's id\n!!chid --> channel's id\n!!servid --> server's id\n!!shrug --> ¯\\_(ツ)_/¯\n!!lenny --> (͡° ͜ʖ ͡°).\n\nbot automatically upvotes reactions...\nDM @ValentinHacker#5509 for disable...\n\n```<https://github.com/ValentinHacker/Vale>");
 		} else if (/^!!sd /gmi.test(msg.content)) {
 			msg.reply(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500));
-			// replaced with `msg.delete(2500)`
 			msg.delete();
 		} else if (/^!!rp \d{1,2} /i.test(msg.content)) {
 			let rep = (msg.content.split(" ")[1]||1) * 1
 			let dt = msg.content.split(" ").slice(2).join(" ");
-			// dont send "null", if its empty just do `return`
 			if (!dt) return
 			msg.delete();
 			for (var stp = 0; stp < rep; stp++) {
@@ -137,12 +116,10 @@ clt.on("message",msg=>{
 			return;
 		} else if (/^!!rp .+/i.test(msg.content)) {
 			msg.channel.send(msg.content.split(" ").slice(1).join(" "));
-			// removed "null", if its empty it will not send anything
 			msg.delete();
 			return;
 		} else if (/^!!id$/i.test(msg.content)) {
 			msg.reply(`<\\@${msg.author.id}>`);
-			// why not `msg.reply(msg.author.id)`?
 		} else if (/^!!id /i.test(msg.content)) {
 			var tmp = [];
 			msg.mentions.users.forEach(function(usr) {
@@ -154,7 +131,6 @@ clt.on("message",msg=>{
 			msg.reply(tmp.join("\t"));
 		} else if (/^!!chid$/i.test(msg.content)) {
 			msg.reply(`<\\#${msg.channel.id}>`);
-			// why not `msg.reply(msg.channel.id)`?
 		} else if (/^!!chid /i.test(msg.content)) {
 			var tmp = [];
 			msg.mentions.channels.forEach(function(chn) {
@@ -163,7 +139,6 @@ clt.on("message",msg=>{
 			msg.reply(tmp.join("\t"));
 		} else if (/^!!servid$/i.test(msg.content)) {
 			msg.reply(`<\\#${msg.guild.id}>`);
-			// why not `msg.reply(msg.guild.id)`?
 		} else if (/^!!shrug$/i.test(msg.content)) {
 			msg.reply("¯\\_(ツ)_/¯");
 		} else if (/^!!lenny$/i.test(msg.content)) {
@@ -200,9 +175,8 @@ clt.on("guildMemberAdd",member=>{
 	}
 });
 clt.on("messageUpdate",(old,nw)=>{
-	if (/ouncktervvyntck/i.test(nw.content)) {
-	// replaced regex
-  	  nw.delete();
+	if (/(^| |\b)ounck?t?e?r?v?v?y?n?t?c?k?( |\b|$)/i.test(nw.content)) {
+		nw.delete();
 	}
 });
 clt.on("disconnect",evt=>{
