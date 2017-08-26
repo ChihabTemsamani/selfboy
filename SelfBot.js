@@ -1,8 +1,10 @@
 const Discord = require("discord.js");
-const clt = new Discord.Client();
+const fs = require("fs");
+const clt = new Discord.Client({disableEveryone:true});
 clt.removeAllListeners();
 clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
+	bot = JSON.parse(fs.readFileSync("Bot.json"));
 });
 clt.on("message",msg=>{
 	try {
@@ -13,7 +15,7 @@ clt.on("message",msg=>{
 			}
 			if (/^!!kill/i.test(msg.content)) {
 				if (/^!!killrest$/i.test(msg.content)) {
-					msg.channel.send("*Bot restarting...*").then(clt.user.destroy).then(()=>clt.login(tkn)).catch(process.exit);
+					msg.channel.send("*Bot restarting...*").then(()=>clt.login(tkn)).catch(process.exit);
 				} else {
 					msg.channel.send("*Bot shutdown...*").then(clt.destroy).catch(process.exit);
 				}
@@ -47,12 +49,22 @@ clt.on("message",msg=>{
 				clt.user.setGame(stt.game.name=msg.content.replace(/^!!game /i, ""));
 				clt.user.setPresence(stt);
 				msg.delete(100);
+			} else if (msg.guild&&/^!!react$/i.test(msg.content)) {
+				msg.guild.reactspam = msg.guild.reactspam?false:true;
+				msg.delete(100);
 			}
 		}
-		/*if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(msg.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
-			msg.react("🏳️‍🌈");
-		}*/
-		if (/( |^)ountv?v?c?k?($| )/gi.test(msg.content)) {
+		if (msg.guild) {
+			if (msg.guild.reactspam) {
+				if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(msg.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+					msg.react("🏳️‍🌈");
+				}
+				if (/(^| |\W)fuck?($| |\W)/gi.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(msg.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+					msg.react("241616161861664778");
+				}
+			}
+		}
+		if (/( |^|\W)ountv?v?c?k?($| |\W)/gi.test(msg.content)) {
 			msg.delete();
 			return;
 		}
@@ -103,6 +115,8 @@ clt.on("message",msg=>{
 			msg.reply("¯\\_(ツ)_/¯");
 		} else if (/^!!lenny$/i.test(msg.content)) {
 			msg.reply("(͡° ͜ʖ ͡°)");
+		} else if (/^!!up(time)?$/i.test(msg.content)) {
+			msg.reply(clt.uptime);
 		}
 	} catch (a) {
 		msg.react("❌");
@@ -133,10 +147,12 @@ clt.on("guildMemberAdd",member=>{
 	}
 });
 clt.on("messageUpdate",(old,nw)=>{
-	if (/( |^)ountv?v?c?k?($| )/gi.test(nw.content)) {
+	if (/( |^|\W)ountv?v?c?k?($| |\W)/gi.test(nw.content)) {
   	  nw.delete();
 	}
 });
+clt.on("disconnect",evt=>{
+	clt.login(tkn);
+});
 stt = {game:{name:"",type:0},type:0,afk:false};
-tkn = null;
 clt.login(tkn);
