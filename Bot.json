@@ -1,1 +1,3 @@
-{"bots":{"172002275412279296":{"t!daily":false}}}
+{"eval":"clt.guilds.find('id','269278777089982475').channels.find('id','341238035834208259').send('=bump');setInterval(()=>clt.guilds.find('id','269278777089982475').channels.find('id','341238035834208259').send('=bump'),14400000);clt.guilds.find('id','246087663717842944').channels.find('id','246090492113190912').send('t!daily');setInterval(()=>clt.guilds.find('id','246087663717842944').channels.find('id','246090492113190912').send('t!daily'),86400000)",
+"novote":[262268073363505150,223517176005394430,117006615147708420],
+"welcome":{"269278777089982475":"[Bot]: $USER, Welcome! ^_^"}}
