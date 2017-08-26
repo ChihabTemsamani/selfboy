@@ -1,14 +1,14 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
-clt.removeAllListeners();
+var bot, stt;
 clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
 });
 clt.on("message",msg=>{
 	try {
-		if (/```/.test(msg.content)) return;
+		if (/```/.test(msg.content)) return
 		if (msg.author.id==clt.user.id) {
 			if (/\{.*?\}/gmi.test(msg.content)) {
 				msg.edit(msg.content.replace(/\{shru?g?\}/gmi,"¯\\_(ツ)_/¯").replace(/\{lenn?y?\}/gmi,"(͡° ͜ʖ ͡°)"));
@@ -27,44 +27,57 @@ clt.on("message",msg=>{
 				msg.channel.send("```js\n"+eval(msg.content.replace(/^!!eval /i, ""))+"```");
 				msg.react("✅");
 			} else if (/^!!rp \d{1,3} /i.test(msg.content)) {
-				let rep = Number(msg.content.split(" ")[1]||1), dt = msg.content.split(" ").slice(2).join(" ")||"null";
+				let rep = (msg.content.split(" ")[1]||1) * 1
+				let dt = msg.content.split(" ").slice(2).join(" ");
 				msg.delete();
+				if (!dt) return
 				for (var stp = 0; stp < rep; stp++) {
 					msg.channel.send(dt);
 				}
 				return;
 			} else if (/^!!rp .+/i.test(msg.content)) {
-				msg.channel.send(msg.content.split(" ").slice(1).join(" ")||"null");
+				msg.channel.send(msg.content.split(" ").slice(1).join(" "));
 				msg.delete();
 				return;
 			} else if (/^!!rg .+?/i.test(msg.content)) {
-				msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]){return ":"+vl+":";}else{return val.replace(/ /gmi,"  ");}}).join(""));
+				msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{
+					var vl = val.toLowerCase();
+					if (/[a-z]/.test(vl)) {
+						return `:regional_indicator_${vl}:`;
+					} else if (/\d/.test(val)) {
+						return `:${["zero","one","two","three","four","five","six","seven","eight","nine"][Number(vl)]}:`;
+					} else if (vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]) {
+						return `:${vl}:`;
+					} else {
+						return val.replace(/ /,"  ");
+					}
+				}).join(""));
 				msg.delete();
 				return;
 			} else if (/^!!afk .*?/i.test(msg.content)) {
 				clt.user.setAFK(stt.afk=!/^(false|undefined|null|0|""|'')$/.test(msg.content.replace(/^!!afk /i,"")));
 				clt.user.setPresence(stt);
-				msg.reply(" you are "+(stt.afk?"":"not ")+"'away from keyboard'");
+				msg.reply(`you are ${stt.afk?"":"not "}away from keyboard`);
 			} else if (/^!!game .*?/i.test(msg.content)) {
 				clt.user.setGame(stt.game.name=msg.content.replace(/^!!game /i, ""));
 				clt.user.setPresence(stt);
 				msg.delete(100);
-			} else if (msg.guild&&/^!!react$/i.test(msg.content)) {
+			} else if (/^!!react$/i.test(msg.content)&&msg.guild) {
 				msg.guild.reactspam = msg.guild.reactspam?false:true;
 				msg.delete(100);
 			}
 		}
 		if (msg.guild) {
-			if (msg.guild.reactspam) {
-				if (/(^| |\W)gay($| |\W)/gi.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(msg.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+			if (msg.guild.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+				if (/\bgay\b/i.test(msg.content)) {
 					msg.react("🏳️‍🌈");
 				}
-				if (/(^| |\W)fuck?($| |\W)/gi.test(msg.content)&&!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(msg.guild.id)&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+				if (/fu?c?k/i.test(msg.content)) {
 					msg.react("241616161861664778");
 				}
 			}
 		}
-		if (/( |^|\W)ountv?v?c?k?($| |\W)/gi.test(msg.content)) {
+		if (/(^| |\b)ounck?t?e?r?v?v?y?n?t?c?k?( |\b|$)/i.test(msg.content)) {
 			msg.delete();
 			return;
 		}
@@ -73,21 +86,36 @@ clt.on("message",msg=>{
 		} else if (/^!!pings$/i.test(msg.content)) {
 			msg.reply(`Pongs! ${clt.pings.toString()}`);
 		} else if (/^!!rg .+?/i.test(msg.content)) {
-			msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{var vl=val.toLowerCase();if("abcdefghijklmnopqrstuvwxyz".indexOf(vl)>=0){return ":regional_indicator_"+vl+":";}else if(/\d/.test(val)){return ":"+["zero","one","two","three","four","five","six","seven","eight","nine"][Number(val)]+":"}else if(vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]){return ":"+vl+":";}else{return val.replace(/ /gmi,"  ");}}).join(""));
+			msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{
+				var vl = val.toLowerCase();
+				if (/[a-z]/.test(vl)) {
+					return `:regional_indicator_${vl}:`;
+				} else if (/\d/.test(val)) {
+					return `:${["zero","one","two","three","four","five","six","seven","eight","nine"][Number(vl)]}:`;
+				} else if (vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]) {
+					return `:${vl}:`;
+				} else {
+					return val.replace(/ /,"  ");
+				}
+			}).join(""));
 			msg.delete();
+			return;
 		} else if (/^!!he?lp/i.test(msg.content)) {
 			msg.reply("```\n!!ping --> command execution delay\n!!pings --> uptime pings\n!!rg text --> converts your speech to emojis\n!!hlp --> shows this screen\n!!sd text --> sends message and deletes after 0.25 seconds\n!!rp [number] text --> repeats text 'number' times\n!!id [mention(s)] --> user's/channel's id\n!!chid --> channel's id\n!!servid --> server's id\n!!shrug --> ¯\\_(ツ)_/¯\n!!lenny --> (͡° ͜ʖ ͡°).\n\nbot automatically upvotes reactions...\nDM @ValentinHacker#5509 for disable...\n\n```<https://github.com/ValentinHacker/Vale>");
 		} else if (/^!!sd /gmi.test(msg.content)) {
-			msg.reply(msg.content.replace(/^!!sd /i,"")).then(msg=>setTimeout(msg=>msg.delete(),2500,msg));
+			msg.reply(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500));
 			msg.delete();
 		} else if (/^!!rp \d{1,2} /i.test(msg.content)) {
-			let rep = Number(msg.content.split(" ")[1]||1), dt = msg.content.split(" ").slice(2).join(" ")||"null";
+			let rep = (msg.content.split(" ")[1]||1) * 1
+			let dt = msg.content.split(" ").slice(2).join(" ");
+			if (!dt) return
 			msg.delete();
 			for (var stp = 0; stp < rep; stp++) {
-				msg.reply(dt);
+				msg.channel.send(dt);
 			}
+			return;
 		} else if (/^!!rp .+/i.test(msg.content)) {
-			msg.reply(msg.content.split(" ").slice(1).join(" ")||"null");
+			msg.channel.send(msg.content.split(" ").slice(1).join(" "));
 			msg.delete();
 			return;
 		} else if (/^!!id$/i.test(msg.content)) {
@@ -147,8 +175,8 @@ clt.on("guildMemberAdd",member=>{
 	}
 });
 clt.on("messageUpdate",(old,nw)=>{
-	if (/( |^|\W)ountv?v?c?k?($| |\W)/gi.test(nw.content)) {
-  	  nw.delete();
+	if (/(^| |\b)ounck?t?e?r?v?v?y?n?t?c?k?( |\b|$)/i.test(nw.content)) {
+		nw.delete();
 	}
 });
 clt.on("disconnect",evt=>{
