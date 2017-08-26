@@ -2,9 +2,33 @@ const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
 var bot, stt;
+function rnd(frm,to,rd) {
+	if (frm===undefined) {
+		return "#"+Math.round(Math.random()*16777215).toString(16);
+	} else {
+		to = to===undefined?frm:to;
+		frm = frm==to?0:frm;
+		var tmp = [Math.min(frm,to),Math.max(frm,to)];
+		frm = tmp[0];
+		to = tmp[1];
+		return !rd?Math.round(Math.random()*(to-frm)+frm):(Math.random()*(to-frm)+frm);
+	}
+}//rnd
+Math.rnd = rnd;
+Number.prototype.rnd = function(frm,rd) {
+	rnd(frm,this,rd);
+};
+Array.prototype.rnd = function(rd) {
+	var ind = rnd(0,this.length-1);
+	if (rd) {
+		return ind;
+	}
+	return this[ind];
+};
 clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
+	eval(bot.eval);
 });
 clt.on("message",msg=>{
 	try {
@@ -17,7 +41,7 @@ clt.on("message",msg=>{
 				if (/^!!killrest$/i.test(msg.content)) {
 					msg.channel.send("*Bot restarting...*").then(()=>clt.login(tkn)).catch(process.exit);
 				} else {
-					msg.channel.send("*Bot shutdown...*").then(clt.destroy).catch(process.exit);
+					msg.channel.send("*Bot shutdown...*").then(clt.destroy()).then(process.exit).catch(process.exit);
 				}
 			} else if (/^!!sd /gmi.test(msg.content)) {
 				msg.channel.send(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500));
@@ -69,11 +93,11 @@ clt.on("message",msg=>{
 		}
 		if (msg.guild) {
 			if (msg.guild.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
-				if (/\bgay\b/i.test(msg.content)) {
+				if (/\bgays?\b/i.test(msg.content)) {
 					msg.react("🏳️‍🌈");
 				}
 				if (/fu?c?k/i.test(msg.content)) {
-					msg.react("241616161861664778");
+					msg.react(["241616161861664778","337759336120057860"].rnd());
 				}
 			}
 		}
@@ -101,7 +125,7 @@ clt.on("message",msg=>{
 			msg.delete();
 			return;
 		} else if (/^!!he?lp/i.test(msg.content)) {
-			msg.reply("```\n!!ping --> command execution delay\n!!pings --> uptime pings\n!!rg text --> converts your speech to emojis\n!!hlp --> shows this screen\n!!sd text --> sends message and deletes after 0.25 seconds\n!!rp [number] text --> repeats text 'number' times\n!!id [mention(s)] --> user's/channel's id\n!!chid --> channel's id\n!!servid --> server's id\n!!shrug --> ¯\\_(ツ)_/¯\n!!lenny --> (͡° ͜ʖ ͡°).\n\nbot automatically upvotes reactions...\nDM @ValentinHacker#5509 for disable...\n\n```<https://github.com/ValentinHacker/Vale>");
+			msg.reply("```\n!!ping --> command execution delay\n!!pings --> uptime pings\n!!rg text --> converts your speech to emojis\n!!hlp --> shows this screen\n!!sd text --> sends message and deletes after 0.25 seconds\n!!rp [number] text --> repeats text 'number' times\n!!id [mention(s)] --> user's/channel's id\n!!chid --> channel's id\n!!servid --> server's id\n!!shrug --> ¯\\_(ツ)_/¯\n!!lenny --> (͡° ͜ʖ ͡°)\n!!up --> bot uptime.\n\nbot automatically upvotes reactions...\nDM @ValentinHacker#5509 for disable...\n\n```<https://github.com/ValentinHacker/Vale>");
 		} else if (/^!!sd /gmi.test(msg.content)) {
 			msg.reply(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500));
 			msg.delete();
@@ -157,7 +181,7 @@ clt.on("messageReactionAdd",(emj,usr)=>{
 		return;
 	}
 	try {
-		if (!/^(262268073363505164|223517176005394432|117006615147708417)$/gi.test(emj.message.guild.id)) {
+		if (!bot.novote.some(val=>val==emj.message.guild.id)) {
 			emj.message.react(emj.emoji);
 		}
 	} catch (e) {
@@ -169,9 +193,10 @@ clt.on("messageReactionRemove",(emj,usr)=>{
 		emj.remove(clt.user);
 	}
 });
-clt.on("guildMemberAdd",member=>{
-	if (member.guild.id==269278777089982475) {
-		member.guild.defaultChannel.send(`[Bot]: ${member}, Welcome! ^_^`);
+clt.on("guildMemberAdd",mmb=>{
+	var wl = null;
+	if (Object.keys(bot.welcome).some(wlc=>mmb.guild.id==(wl=wlc))) {
+		mmb.guild.defaultChannel.send(bot.welcome[wl].replace(/\$USER/g,mmb));
 	}
 });
 clt.on("messageUpdate",(old,nw)=>{
