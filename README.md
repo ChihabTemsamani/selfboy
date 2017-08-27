@@ -1,5 +1,5 @@
 # Vale  
   
-Discord SelfBot  
+Discord SelfBot (*UserBot*)  
   
 [Wiki](https://github.com/ValentinHacker/Vale/wiki)
