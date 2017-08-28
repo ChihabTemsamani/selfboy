@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
-var bot, stt, last;
+var bot, last;
 function rnd(frm,to,rd) {
 	if (frm===undefined) {
 		return "#"+Math.round(Math.random()*16777215).toString(16);
@@ -14,6 +14,17 @@ function rnd(frm,to,rd) {
 		return !rd?Math.round(Math.random()*(to-frm)+frm):(Math.random()*(to-frm)+frm);
 	}
 }//rnd
+function rep(cnt,com,ini) {
+	var val = [];
+	for (var stp = (ini?ini:0); stp < cnt+(ini?ini:0); stp++) {
+		if (typeof com=="string") {
+			val.push(eval(com.replace(/@(?!\\(?!\\))/gmi,stp).replace(/\\(?!\\(?!\\))/gmi,"")));
+		} else {
+			val.push(com(stp));
+		}
+	}
+	return val.filter(function(va){return va!==undefined;});
+}//rep
 Math.rnd = rnd;
 Number.prototype.rnd = function(frm,rd) {
 	rnd(frm,this,rd);
@@ -25,8 +36,14 @@ Array.prototype.rnd = function(rd) {
 	}
 	return this[ind];
 };
+String.prototype.rnd = function() {
+	return this.toString();
+};
 Object.prototype.ins = function() {
 	return Object.keys(this);
+};
+Array.prototype.split = function() {
+	return this;
 };
 Array.prototype.rmv = String.prototype.rmv = function(elm) {
 	var arr = this.split("");
@@ -55,15 +72,15 @@ clt.on("message",msg=>{
 				if (/^!!killrest$/i.test(msg.content)) {
 					msg.channel.send("*Bot restarting...*").then(()=>clt.login(tkn)).catch(process.exit);
 				} else {
-					msg.channel.send("*Bot shutdown...*").then(clt.destroy()).then(process.exit).catch(process.exit);
+					msg.channel.send("*Bot shutdown...*").then(()=>clt.destroy()).then(process.exit).catch(process.exit);
 				}
 			} else if (/^!!sd /gmi.test(msg.content)) {
-				msg.channel.send(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500));
+				msg.channel.send(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500).catch(function(){})).catch(function(){});
 				msg.delete();
 				return;
 			} else if (/^!!eval /i.test(msg.content)) {
 				msg.channel.send("```js\n"+eval(msg.content.replace(/^!!eval /i, ""))+"```");
-				msg.react("✅");
+				msg.react('✅');
 			} else if (/^!!rp \d{1,3} /i.test(msg.content)) {
 				let rep = (msg.content.split(" ")[1]||1) * 1
 				let dt = msg.content.split(" ").slice(2).join(" ");
@@ -93,60 +110,95 @@ clt.on("message",msg=>{
 				msg.delete();
 				return;
 			} else if (/^!!afk .*?/i.test(msg.content)) {
-				clt.user.setAFK(stt.afk=!/^(false|undefined|null|0|""|'')$/.test(msg.content.replace(/^!!afk /i,"")));
-				clt.user.setPresence(stt);
-				msg.reply(`you are ${stt.afk?"":"not "}away from keyboard`);
+				clt.user.setAFK(bot.status.afk=!/^(false|undefined|null|0|""|'')$/.test(msg.content.replace(/^!!afk /i,"")));
+				clt.user.setPresence(bot.status);
+				msg.reply(`you are ${bot.status.afk?"":"not "}away from keyboard`);
 			} else if (/^!!game .*?/i.test(msg.content)) {
-				clt.user.setGame(stt.game.name=msg.content.replace(/^!!game /i, ""));
-				clt.user.setPresence(stt);
+				clt.user.setGame(bot.status.game.name=msg.content.replace(/^!!game /i, ""));
+				clt.user.setPresence(bot.status);
 				msg.delete();
-			} else if (/^!!reac(t|c)$/i.test(msg.content)&&msg.guild) {
+			} else if (/^!!reac(t|c)?$/i.test(msg.content)&&msg.guild) {
 				msg.guild.reactspam = msg.guild.reactspam?false:true;
 				if (!/t/i.test(msg.content)) msg.delete(100)
 			} else if (/^!!bots?$/i.test(msg.content)) {
 				last = msg;
-				eval(bot.command.replace(/\$SERV/g,last.guild.id+"").replace(/\$CHAN/g,last.channel.id+"").replace(/\$AUTH/g,last.author.id+""));
+				eval(bot.command.replace(/\$SERV/g,(last.guild||{id:0}).id+"").replace(/\$CHAN/g,(last.channel.id||"0")+"").replace(/\$AUTH/g,last.author.id+""));
 				msg.delete();
 			} else if (/^!!commadd !!.+? .+?$/i.test(msg.content)) {
 				bot.customCommands[msg.content.split(" ")[1]] = msg.content.split(" ").slice(2).join(" ");
 				fs.writeFile("Bot.json",JSON.stringify(bot));
 				msg.delete();
+			} else if (/^!!comadds$/i.test(msg.content)) {
+				msg.channel.send("```js\n"+bot.customCommands.ins().join(", ")+"```");
+				return;
 			} else if (out=bot.customCommands[(msg.content.match(/^.+?(?=( |$))/i)||[undefined])[0]]) {
-				eval(out);
+				eval(out.code);
 			} else if (/^!!commrem !!.+?$/i.test(msg.content)) {
 				delete bot.customCommands[msg.content.split(" ").slice(1)];
 				fs.writeFile("Bot.json",JSON.stringify(bot));
 				msg.delete();
 			} else if (/^!!novote$/i.test(msg.content)) {
-				bot.novote.push(msg.guild.id);
+				if (!bot.novote.some(cnt=>msg.guild.id==cnt)) {
+					bot.novote.push(msg.guild.id*1);
+				}
 				fs.writeFile("Bot.json",JSON.stringify(bot));
 				msg.delete();
 			} else if (/^!!vote$/i.test(msg.content)) {
 				bot.novote.rmv(msg.guild.id+"");
 				fs.writeFile("Bot.json",JSON.stringify(bot));
 				msg.delete();
+			} else if (/^!!(purge?|prune?) \d{1,3}$/i.test(msg.content)) {
+				msg.channel.fetchMessages({limit:Number(msg.content.split(" ")[1]||1)+1}).then(Msg=>Msg.array().forEach(msg=>msg.delete()));
+			} else if (/^!!rel(oad)?$/i.test(msg.content)) {
+				bot = JSON.parse(fs.readFileSync("Bot.json"));
+				msg.delete();
+			} else if (/^!!save?$/i.test(msg.content)) {
+				fs.writeFile("Bot.json",JSON.stringify(bot));
+				msg.delete();
+			} else if (/^!!banword .+?$/i.test(msg.content)) {
+				let wrd = msg.content.split(" ").slice(1).join(" ");
+				if (!bot.banwords.some(cnt=>wrd==cnt)) {
+					bot.banwords.push(wrd);
+					fs.writeFile("Bot.json",JSON.stringify(bot));
+					msg.delete();
+				}
+			} else if (/^!!react(ion|word) .+? .+?$/i.test(msg.content)) {
+				let wrd = msg.content.split(" ").slice(2).join(" ");
+				let rea = msg.content.split(" ")[1];
+				if (!bot.reactwords.ins().some(cnt=>wrd==cnt)) {
+					bot.reactwords[wrd] = rea;
+					fs.writeFile("Bot.json",JSON.stringify(bot));
+					msg.delete();
+				}
 			}
 		}
 		if (msg.guild) {
 			if (msg.guild.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
-				if (/\bgays?\b/i.test(msg.content)) {
-					msg.react("🏳️‍🌈");
-				}
-				if (/fu?c?k/i.test(msg.content)) {
-					msg.react(["241616161861664778","337759336120057860"].rnd());
-				}
+				bot.reactwords.ins().forEach(val=>{
+					if (new RegExp(val,"gi").test(msg.content)) {
+						msg.react(bot.reactwords[val].rnd());
+					}
+				});
 			}
+		} else {
+			bot.reactwords.ins().forEach(val=>{
+				if (new RegExp(val,"gi").test(msg.content)) {
+					msg.react(bot.reactwords[val].rnd());
+				}
+			});
 		}
-		if (/(^| |\b)ounck?t?e?r?v?v?y?n?t?c?k?( |\b|$)/i.test(msg.content)) {
-			msg.delete();
-			return;
-		}
+		bot.banwords.forEach(val=>{
+			if (new RegExp(val,"gi").test(msg.content)) {
+				msg.delete();
+				return;
+			}
+		});
 		if (/^!!ping$/i.test(msg.content)) {
-			msg.reply(`Pong! ${clt.ping}`);
+			msg.reply(`Pong! ${clt.ping}ms`);
 		} else if (/^!!pings$/i.test(msg.content)) {
 			msg.reply(`Pongs! ${clt.pings.toString()}`);
 		} else if (/^!!rg .+?/i.test(msg.content)) {
-			msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{
+			msg.reply(msg.content.replace(/^!!rg /i,"").split("").map(val=>{
 				var vl = val.toLowerCase();
 				if (/[a-z]/.test(vl)) {
 					return `:regional_indicator_${vl}:`;
@@ -161,7 +213,7 @@ clt.on("message",msg=>{
 			msg.delete();
 			return;
 		} else if (/^!!he?lp/i.test(msg.content)) {
-			msg.reply("```\n!!ping --> command execution delay\n!!pings --> uptime pings\n!!rg text --> converts your speech to emojis\n!!hlp --> shows this screen\n!!sd text --> sends message and deletes after 0.25 seconds\n!!rp [number] text --> repeats text 'number' times\n!!id [mention(s)] --> user's/channel's id\n!!chid --> channel's id\n!!servid --> server's id\n!!shrug --> ¯\\_(ツ)_/¯\n!!lenny --> (͡° ͜ʖ ͡°)\n!!up --> bot uptime\n!!reacting --> check if reaction upvoting is enabled.\n\nbot automatically upvotes reactions...\nDM @ValentinHacker#5509 for disable...\n\n```<https://github.com/ValentinHacker/Vale>");
+			msg.reply("```\n!!ping --> command execution delay\n!!pings --> uptime pings\n!!rg text --> converts your speech to emojis\n!!hlp --> shows this screen\n!!sd text --> sends message and deletes after 0.25 seconds\n!!rp [number] text --> repeats text 'number' times\n!!id [mention(s)] --> user's/channel's id\n!!chid --> channel's id\n!!servid --> server's id\n!!shrug --> ¯\\_(ツ)_/¯\n!!lenny --> (͡° ͜ʖ ͡°)\n!!up --> bot uptime\n!!reacting --> check if reaction upvoting is enabled\n!!comadds --> check custom public commands.\n\nbot automatically upvotes reactions...\nDM @ValentinHacker#5509 for disable...\n\n```<https://github.com/ValentinHacker/Vale>");
 		} else if (/^!!sd /gmi.test(msg.content)) {
 			msg.reply(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500));
 			msg.delete();
@@ -189,7 +241,7 @@ clt.on("message",msg=>{
 				tmp.push(`${chn} : <\\#${chn.id}>`);
 			});
 			(msg.content.match(/:.+?:/g)||[]).forEach(emj=>{
-				emj = "<"+emj+clt.emojis.find("name",emj.replace(/:/g,"")).id+">";
+				emj = clt.emojis.find("name",emj.replace(/:/g,""))||emj;
 				tmp.push(`${emj} : \`${emj}\``);
 			})
 			msg.reply(tmp.join("\t"));
@@ -209,11 +261,17 @@ clt.on("message",msg=>{
 			msg.reply("(͡° ͜ʖ ͡°)");
 		} else if (/^!!up(time)?$/i.test(msg.content)) {
 			msg.reply(clt.uptime);
-		} else if (/^!!react(ing)?$/i.test(msg.content)) {
-			msg.reply("[Bot] : "+(msg.guild.reactspam?"I react":"I don't react"));
+		} else if (/^!!react(ing?)?$/i.test(msg.content)) {
+			msg.reply("[Bot] : "+(msg.guild.reactspam?"I react! ^_^":"I'm not reacting! >.<"));
+		} else if (out=bot.customCommands[(msg.content.match(/^.+?(?=( |$))/i)||[undefined])[0]]) {
+			if (out.public) {
+				eval(out.code);
+			}
+		} else if (/^!!comadds$/i.test(msg.content)) {
+			msg.channel.send("```js\n"+(Object.keys(bot.customCommands).filter(com=>bot.customCommands[com].public).join(", "))+"```");
 		}
 	} catch (a) {
-		msg.react("❌");
+		msg.react('❌');
 		msg.channel.send("```js\n" + `${a.lineNumber}, ${a.name}: ${a.message}` + "```");
 	}
 });
@@ -241,13 +299,31 @@ clt.on("guildMemberAdd",mmb=>{
 		mmb.guild.defaultChannel.send(bot.welcome[wl].replace(/\$USER/g,mmb));
 	}
 });
-clt.on("messageUpdate",(old,nw)=>{
-	if (/(^| |\b)ounck?t?e?r?v?v?y?n?t?c?k?( |\b|$)/i.test(nw.content)) {
-		nw.delete();
+clt.on("messageUpdate",(old,msg)=>{
+	if (msg.guild) {
+		if (msg.guild.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+			bot.reactwords.ins().forEach(val=>{
+				if (new RegExp(val,"gi").test(msg.content)) {
+					msg.react(bot.reactwords[val].rnd());
+				}
+			});
+		}
+	} else {
+		bot.reactwords.ins().forEach(val=>{
+			if (new RegExp(val,"gi").test(msg.content)) {
+				msg.react(bot.reactwords[val].rnd());
+			}
+		});
 	}
+	bot.banwords.forEach(val=>{
+		if (new RegExp(val,"gi").test(msg.content)) {
+			msg.delete();
+			return;
+		}
+	});
 });
 clt.on("disconnect",evt=>{
 	clt.login(tkn);
 });
-stt = {game:{name:"",type:0},type:0,afk:false};
+tkn = null;
 clt.login(tkn);
