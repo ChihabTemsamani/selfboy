@@ -223,11 +223,11 @@ clt.on("message",msg=>{
 			if (!dt) return
 			msg.delete();
 			for (var stp = 0; stp < rep; stp++) {
-				msg.channel.send(dt);
+				msg.reply(dt);
 			}
 			return;
 		} else if (/^!!rp .+/i.test(msg.content)) {
-			msg.channel.send(msg.content.split(" ").slice(1).join(" "));
+			msg.reply(msg.content.split(" ").slice(1).join(" "));
 			msg.delete();
 			return;
 		} else if (/^!!id$/i.test(msg.content)) {
@@ -268,7 +268,7 @@ clt.on("message",msg=>{
 				eval(out.code);
 			}
 		} else if (/^!!comadds$/i.test(msg.content)) {
-			msg.channel.send("```js\n"+(Object.keys(bot.customCommands).filter(com=>bot.customCommands[com].public).join(", "))+"```");
+			msg.reply("```js\n"+(Object.keys(bot.customCommands).filter(com=>bot.customCommands[com].public).join(", "))+"```");
 		}
 	} catch (a) {
 		msg.react('❌');
