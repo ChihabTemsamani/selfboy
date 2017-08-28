@@ -62,8 +62,9 @@ clt.on('ready',()=>{
 });
 clt.on("message",msg=>{
 	try {
-		let out;
 		if (/``/.test(msg.content)) return
+		let out;
+		msg.channel.reactspam = bot.reacts.some(val=>val==msg.channel.id);
 		if (msg.author.id==clt.user.id) {
 			if (/\{.*?\}/gmi.test(msg.content)) {
 				msg.edit(msg.content.replace(/\{shru?g?\}/gmi,"¯\\_(ツ)_/¯").replace(/\{lenn?y?\}/gmi,"(͡° ͜ʖ ͡°)"));
@@ -113,13 +114,32 @@ clt.on("message",msg=>{
 				clt.user.setAFK(bot.status.afk=!/^(false|undefined|null|0|""|'')$/.test(msg.content.replace(/^!!afk /i,"")));
 				clt.user.setPresence(bot.status);
 				msg.reply(`you are ${bot.status.afk?"":"not "}away from keyboard`);
+			} else if (/^!!afk$/i.test(msg.content)) {
+				clt.user.setAFK(bot.status.afk=bot.status.afk?false:true);
+				clt.user.setPresence(bot.status);
+				msg.reply(`you are ${bot.status.afk?"":"not "}away from keyboard`);
 			} else if (/^!!game .*?/i.test(msg.content)) {
 				clt.user.setGame(bot.status.game.name=msg.content.replace(/^!!game /i, ""));
 				clt.user.setPresence(bot.status);
 				msg.delete();
-			} else if (/^!!reac(t|c)?$/i.test(msg.content)&&msg.guild) {
-				msg.guild.reactspam = msg.guild.reactspam?false:true;
-				if (!/t/i.test(msg.content)) msg.delete(100)
+			} else if (/^!!reac(t|c)?$/i.test(msg.content)) {
+				msg.channel.reactspam = msg.channel.reactspam?false:true;
+				if (msg.channel.reactspam) {
+					bot.reacts.push(msg.channel.id);
+				} else {
+					bot.reacts.rmv(msg.channel.id);
+				}
+				fs.writeFile("Bot.json",JSON.stringify(bot));
+				if (!/^!!react$/i.test(msg.content)) msg.delete()
+			} else if (/^!!reac(t|c)? .+?$/i.test(msg.content)) {
+				msg.channel.reactspam = !/^(false|undefined|null|0|""|'')$/.test(msg.content.replace(/^!!reac(c|t)? /gi,""));
+				if (msg.channel.reactspam&&!bot.reacts.some(val=>val==msg.channel.id)) {
+					bot.reacts.push(msg.channel.id);
+				} else if (!msg.channel.reactspam) {
+					bot.reacts.rmv(msg.channel.id);
+				}
+				fs.writeFile("Bot.json",JSON.stringify(bot));
+				if (!/^!!react/i.test(msg.content)) msg.delete()
 			} else if (/^!!bots?$/i.test(msg.content)) {
 				last = msg;
 				eval(bot.command.replace(/\$SERV/g,(last.guild||{id:0}).id+"").replace(/\$CHAN/g,(last.channel.id||"0")+"").replace(/\$AUTH/g,last.author.id+""));
@@ -133,6 +153,7 @@ clt.on("message",msg=>{
 				return;
 			} else if (out=bot.customCommands[(msg.content.match(/^.+?(?=( |$))/i)||[undefined])[0]]) {
 				eval(out.code);
+				return;
 			} else if (/^!!commrem !!.+?$/i.test(msg.content)) {
 				delete bot.customCommands[msg.content.split(" ").slice(1)];
 				fs.writeFile("Bot.json",JSON.stringify(bot));
@@ -172,15 +193,7 @@ clt.on("message",msg=>{
 				}
 			}
 		}
-		if (msg.guild) {
-			if (msg.guild.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
-				bot.reactwords.ins().forEach(val=>{
-					if (new RegExp(val,"gi").test(msg.content)) {
-						msg.react(bot.reactwords[val].rnd());
-					}
-				});
-			}
-		} else {
+		if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
 			bot.reactwords.ins().forEach(val=>{
 				if (new RegExp(val,"gi").test(msg.content)) {
 					msg.react(bot.reactwords[val].rnd());
@@ -262,7 +275,7 @@ clt.on("message",msg=>{
 		} else if (/^!!up(time)?$/i.test(msg.content)) {
 			msg.reply(clt.uptime);
 		} else if (/^!!react(ing?)?$/i.test(msg.content)) {
-			msg.reply("[Bot] : "+(msg.guild.reactspam?"I react! ^_^":"I'm not reacting! >.<"));
+			msg.reply("[Bot] : "+(msg.channel.reactspam?"I react! ^_^":"I'm not reacting! >.<"));
 		} else if (out=bot.customCommands[(msg.content.match(/^.+?(?=( |$))/i)||[undefined])[0]]) {
 			if (out.public) {
 				eval(out.code);
@@ -281,7 +294,7 @@ clt.on("messageReactionAdd",(emj,usr)=>{
 		return;
 	}
 	try {
-		if (!bot.novote.some(val=>val==emj.message.guild.id)) {
+		if (!bot.novote.some(val=>val==emj.message.guild.id||val==emj.message.channel.id)) {
 			emj.message.react(emj.emoji);
 		}
 	} catch (e) {
@@ -300,15 +313,7 @@ clt.on("guildMemberAdd",mmb=>{
 	}
 });
 clt.on("messageUpdate",(old,msg)=>{
-	if (msg.guild) {
-		if (msg.guild.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
-			bot.reactwords.ins().forEach(val=>{
-				if (new RegExp(val,"gi").test(msg.content)) {
-					msg.react(bot.reactwords[val].rnd());
-				}
-			});
-		}
-	} else {
+	if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
 		bot.reactwords.ins().forEach(val=>{
 			if (new RegExp(val,"gi").test(msg.content)) {
 				msg.react(bot.reactwords[val].rnd());
