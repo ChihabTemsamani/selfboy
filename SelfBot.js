@@ -2,7 +2,8 @@ const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
 var bot, last;
-function rnd(frm,to,rd) {
+nul = function nul() {}//nul
+rnd = function rnd(frm,to,rd) {
 	if (frm===undefined) {
 		return "#"+Math.round(Math.random()*16777215).toString(16);
 	} else {
@@ -14,7 +15,16 @@ function rnd(frm,to,rd) {
 		return !rd?Math.round(Math.random()*(to-frm)+frm):(Math.random()*(to-frm)+frm);
 	}
 }//rnd
-function rep(cnt,com,ini) {
+snd = function snd(chan,data) {
+	return clt.channels.find("id",chan+"").send(data);
+};
+sav = function sav() {
+	fs.writeFile("Bot.json",JSON.stringify(bot));
+}//sav
+rel = function rel() {
+	bot = JSON.parse(fs.readFileSync("Bot.json"));
+}//rel
+rep = function rep(cnt,com,ini) {
 	var val = [];
 	for (var stp = (ini?ini:0); stp < cnt+(ini?ini:0); stp++) {
 		if (typeof com=="string") {
@@ -42,6 +52,13 @@ String.prototype.rnd = function() {
 Object.prototype.ins = function() {
 	return Object.keys(this);
 };
+Object.prototype.Ins = function() {
+	let arr = [];
+	for (prp in this) {
+		arr.push(prp);
+	}
+	return arr;
+};
 Array.prototype.split = function() {
 	return this;
 };
@@ -53,144 +70,30 @@ Array.prototype.rmv = String.prototype.rmv = function(elm) {
 	}
 	return arr;
 };
-const snd = function snd(serv,chan,data) {
-	return clt.guilds.find("id",serv).channels.find("id",chan).send(data.replace(/\$HERE/g,last.channel).replace(/\$ME/g,last.author));
-};
 clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
 });
 clt.on("message",msg=>{
 	try {
-		if (/``/.test(msg.content)) return
+		if (/``/.test(msg.content)||bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id)) return
 		let out;
+		last = msg;
+		const snd = function snd(chan,data) {
+			return clt.channels.find("id",chan+"").send(data.replace(/\$HERE/g,last.channel).replace(/\$ME/g,last.author));
+		};
 		msg.channel.reactspam = bot.reacts.some(val=>val==msg.channel.id);
 		if (msg.author.id==clt.user.id) {
 			if (/\{.*?\}/gmi.test(msg.content)) {
-				msg.edit(msg.content.replace(/\{shru?g?\}/gmi,"¯\\_(ツ)_/¯").replace(/\{lenn?y?\}/gmi,"(͡° ͜ʖ ͡°)"));
+				msg.edit(msg.content.replace(/\{shru?g?\}/gmi,"¯\\_(ツ)_/¯").replace(/\{lenn?y?\}/gmi,"(͡° ͜ʖ ͡°)").replace(/\{eval (.+?)\}/gmi,(mat,p)=>eval(p)));
 			}
-			if (/^!!kill/i.test(msg.content)) {
-				if (/^!!killrest$/i.test(msg.content)) {
-					msg.channel.send("*Bot restarting...*").then(()=>clt.login(tkn)).catch(process.exit);
-				} else {
-					msg.channel.send("*Bot shutdown...*").then(()=>clt.destroy()).then(process.exit).catch(process.exit);
+			if (out=bot.commands.ins().filter(com=>{return new RegExp("^!!"+com,"i").test(msg.content);})) {
+				if(eval("("+(bot.commands[out]||nul)+")(msg)")) {
+					return;
 				}
-			} else if (/^!!sd /gmi.test(msg.content)) {
-				msg.channel.send(msg.content.replace(/^!!sd /i,"")).then(msg=>msg.delete(2500).catch(function(){})).catch(function(){});
-				msg.delete();
-				return;
-			} else if (/^!!eval /i.test(msg.content)) {
-				msg.channel.send("```js\n"+eval(msg.content.replace(/^!!eval /i, ""))+"```");
-				msg.react('✅');
-			} else if (/^!!rp \d{1,3} /i.test(msg.content)) {
-				let rep = (msg.content.split(" ")[1]||1) * 1
-				let dt = msg.content.split(" ").slice(2).join(" ");
-				msg.delete();
-				if (!dt) return
-				for (var stp = 0; stp < rep; stp++) {
-					msg.channel.send(dt);
-				}
-				return;
-			} else if (/^!!rp .+/i.test(msg.content)) {
-				msg.channel.send(msg.content.split(" ").slice(1).join(" "));
-				msg.delete();
-				return;
-			} else if (/^!!rg .+?/i.test(msg.content)) {
-				msg.channel.send(msg.content.replace(/^!!rg /i,"").split("").map(val=>{
-					var vl = val.toLowerCase();
-					if (/[a-z]/.test(vl)) {
-						return `:regional_indicator_${vl}:`;
-					} else if (/\d/.test(val)) {
-						return `:${["zero","one","two","three","four","five","six","seven","eight","nine"][Number(vl)]}:`;
-					} else if (vl={"?":"question","!":"exclamation","*":"asterisk","#":"hash","-":"heavy_minus_sign","+":"heavy_plus_sign","/":"heavy_division_sign","$":"heavy_dollar_sign"}[val]) {
-						return `:${vl}:`;
-					} else {
-						return val.replace(/ /,"  ");
-					}
-				}).join(""));
-				msg.delete();
-				return;
-			} else if (/^!!afk .*?/i.test(msg.content)) {
-				clt.user.setAFK(bot.status.afk=!/^(false|undefined|null|0|""|'')$/.test(msg.content.replace(/^!!afk /i,"")));
-				clt.user.setPresence(bot.status);
-				msg.reply(`you are ${bot.status.afk?"":"not "}away from keyboard`);
-			} else if (/^!!afk$/i.test(msg.content)) {
-				clt.user.setAFK(bot.status.afk=bot.status.afk?false:true);
-				clt.user.setPresence(bot.status);
-				msg.reply(`you are ${bot.status.afk?"":"not "}away from keyboard`);
-			} else if (/^!!game .*?/i.test(msg.content)) {
-				clt.user.setGame(bot.status.game.name=msg.content.replace(/^!!game /i, ""));
-				clt.user.setPresence(bot.status);
-				msg.delete();
-			} else if (/^!!reac(t|c)?$/i.test(msg.content)) {
-				msg.channel.reactspam = msg.channel.reactspam?false:true;
-				if (msg.channel.reactspam) {
-					bot.reacts.push(msg.channel.id);
-				} else {
-					bot.reacts.rmv(msg.channel.id);
-				}
-				fs.writeFile("Bot.json",JSON.stringify(bot));
-				if (!/^!!react$/i.test(msg.content)) msg.delete()
-			} else if (/^!!reac(t|c)? .+?$/i.test(msg.content)) {
-				msg.channel.reactspam = !/^(false|undefined|null|0|""|'')$/.test(msg.content.replace(/^!!reac(c|t)? /gi,""));
-				if (msg.channel.reactspam&&!bot.reacts.some(val=>val==msg.channel.id)) {
-					bot.reacts.push(msg.channel.id);
-				} else if (!msg.channel.reactspam) {
-					bot.reacts.rmv(msg.channel.id);
-				}
-				fs.writeFile("Bot.json",JSON.stringify(bot));
-				if (!/^!!react/i.test(msg.content)) msg.delete()
-			} else if (/^!!bots?$/i.test(msg.content)) {
-				last = msg;
-				eval(bot.command.replace(/\$SERV/g,(last.guild||{id:0}).id+"").replace(/\$CHAN/g,(last.channel.id||"0")+"").replace(/\$AUTH/g,last.author.id+""));
-				msg.delete();
-			} else if (/^!!commadd !!.+? .+?$/i.test(msg.content)) {
-				bot.customCommands[msg.content.split(" ")[1]] = msg.content.split(" ").slice(2).join(" ");
-				fs.writeFile("Bot.json",JSON.stringify(bot));
-				msg.delete();
-			} else if (/^!!comadds$/i.test(msg.content)) {
-				msg.channel.send("```js\n"+bot.customCommands.ins().join(", ")+"```");
-				return;
-			} else if (out=bot.customCommands[(msg.content.match(/^.+?(?=( |$))/i)||[undefined])[0]]) {
-				eval(out.code);
-				return;
-			} else if (/^!!commrem !!.+?$/i.test(msg.content)) {
-				delete bot.customCommands[msg.content.split(" ").slice(1)];
-				fs.writeFile("Bot.json",JSON.stringify(bot));
-				msg.delete();
-			} else if (/^!!novote$/i.test(msg.content)) {
-				if (!bot.novote.some(cnt=>msg.guild.id==cnt)) {
-					bot.novote.push(msg.guild.id*1);
-				}
-				fs.writeFile("Bot.json",JSON.stringify(bot));
-				msg.delete();
-			} else if (/^!!vote$/i.test(msg.content)) {
-				bot.novote.rmv(msg.guild.id+"");
-				fs.writeFile("Bot.json",JSON.stringify(bot));
-				msg.delete();
-			} else if (/^!!(purge?|prune?) \d{1,3}$/i.test(msg.content)) {
-				msg.channel.fetchMessages({limit:Number(msg.content.split(" ")[1]||1)+1}).then(Msg=>Msg.array().forEach(msg=>msg.delete()));
-			} else if (/^!!rel(oad)?$/i.test(msg.content)) {
-				bot = JSON.parse(fs.readFileSync("Bot.json"));
-				msg.delete();
-			} else if (/^!!save?$/i.test(msg.content)) {
-				fs.writeFile("Bot.json",JSON.stringify(bot));
-				msg.delete();
-			} else if (/^!!banword .+?$/i.test(msg.content)) {
-				let wrd = msg.content.split(" ").slice(1).join(" ");
-				if (!bot.banwords.some(cnt=>wrd==cnt)) {
-					bot.banwords.push(wrd);
-					fs.writeFile("Bot.json",JSON.stringify(bot));
-					msg.delete();
-				}
-			} else if (/^!!react(ion|word) .+? .+?$/i.test(msg.content)) {
-				let wrd = msg.content.split(" ").slice(2).join(" ");
-				let rea = msg.content.split(" ")[1];
-				if (!bot.reactwords.ins().some(cnt=>wrd==cnt)) {
-					bot.reactwords[wrd] = rea;
-					fs.writeFile("Bot.json",JSON.stringify(bot));
-					msg.delete();
-				}
+			} 
+			if (out=bot.customCommands[(msg.content.match(/^.+?(?=( |$))/i)||[undefined])[0]]) {
+				return eval(out.code);
 			}
 		}
 		if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
@@ -289,12 +192,8 @@ clt.on("message",msg=>{
 	}
 });
 clt.on("messageReactionAdd",(emj,usr)=>{
-	if (usr.id!=clt.user.id&&!emj.message.guild) {
-		emj.message.react(emj.emoji);
-		return;
-	}
 	try {
-		if (!bot.novote.some(val=>val==emj.message.guild.id||val==emj.message.channel.id)) {
+		if (bot.vote.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id)) {
 			emj.message.react(emj.emoji);
 		}
 	} catch (e) {
