@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
 var bot, last;
+falseReg = /^(false|null|""|''|0|off|no|[]|{}|`)$`/gi;
 nul = function nul() {}//nul
 rnd = function rnd(frm,to,rd) {
 	if (frm===undefined) {
@@ -64,6 +65,9 @@ Array.prototype.split = function() {
 };
 Array.prototype.rmv = String.prototype.rmv = function(elm) {
 	var arr = this.split("");
+	if (typeof elm!="number"&&this.indexOf(elm)<0) {
+		return this;
+	}
 	arr.splice(typeof elm=="number"?elm:this.indexOf(elm),1);
 	if (this instanceof String) {
 		return arr.join("");
