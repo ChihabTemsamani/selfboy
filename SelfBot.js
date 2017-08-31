@@ -80,7 +80,7 @@ clt.on('ready',()=>{
 });
 clt.on("message",msg=>{
 	try {
-		if (/``/.test(msg.content)||bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id)) return
+		if (/``/.test(msg.content)||bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
 		let out;
 		last = msg;
 		const snd = function snd(chan,data) {
@@ -91,13 +91,12 @@ clt.on("message",msg=>{
 			if (/\{.*?\}/gmi.test(msg.content)) {
 				msg.edit(msg.content.replace(/\{shru?g?\}/gmi,"¯\\_(ツ)_/¯").replace(/\{lenn?y?\}/gmi,"(͡° ͜ʖ ͡°)").replace(/\{eval (.+?)\}/gmi,(mat,p)=>eval(p)));
 			}
-			if (out=bot.commands.ins().filter(com=>{return new RegExp("^!!"+com,"i").test(msg.content);})[0]) {
-				if(eval("("+(bot.commands[out]||nul)+")(msg)")) {
+		}
+		if (out=bot.commands.ins().filter(com=>{return new RegExp("^!!"+com,"i").test(msg.content)})[0]) {
+			if (bot.commands[out].public||msg.author.id==clt.user.id) {
+				if (eval("("+(bot.commands[out].code||nul)+")(msg)")) {
 					return;
 				}
-			}
-			if (out=bot.customCommands[(msg.content.match(/^.+?(?=( |$))/i)||[undefined])[0]]) {
-				return eval(out.code);
 			}
 		}
 		if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
@@ -113,38 +112,31 @@ clt.on("message",msg=>{
 				return;
 			}
 		});
-		if (out=bot.publicCommands.ins().filter(com=>{return new RegExp("^!!"+com,"i").test(msg.content);})[0]) {
-			return eval("("+(bot.publicCommands[out]||nul)+")(msg)");
-		}
-		if (out=bot.customCommands[(msg.content.match(/^.+?(?=( |$))/i)||[undefined])[0]]) {
-			if (out.public) {
-				return eval(out.code);
-			}
-		}
 	} catch (a) {
 		console.warn(`${a.lineNumber}, ${a.name}: ${a.message}`);
 	}
 });
 clt.on("messageReactionAdd",(emj,usr)=>{
-	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id)) return
-	if (bot.vote.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id)) {
+	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)) return
+	if (bot.vote.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)) {
 		emj.message.react(emj.emoji);
 	}
 });
 clt.on("messageReactionRemove",(emj,usr)=>{
-	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id)) return
+	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)) return
 	if (emj.users.array().length<=1) {
 		emj.remove(clt.user);
 	}
 });
 clt.on("guildMemberAdd",mmb=>{
+	if (bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)) return
 	var wl = null;
 	if (Object.keys(bot.welcome).some(wlc=>mmb.guild.id==(wl=wlc))) {
 		mmb.guild.defaultChannel.send(bot.welcome[wl].replace(/\$USER/g,mmb));
 	}
 });
 clt.on("messageUpdate",(old,msg)=>{
-	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id)) return
+	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
 	if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
 		bot.reactwords.ins().forEach(val=>{
 			if (new RegExp(val,"gi").test(msg.content)) {
