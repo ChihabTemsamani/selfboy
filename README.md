@@ -2,7 +2,7 @@
   
 Discord SelfBot (*UserBot*)  
   
-[Wiki](https://github.com/ValentinHacker/Vale/wiki)  
+[Wiki](wiki)  [Code](Bot.json)  
   
 ***  
   
