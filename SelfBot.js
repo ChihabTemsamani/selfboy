@@ -89,6 +89,9 @@ clt.on('ready',()=>{
 clt.on("message",msg=>{
 	try {
 		if (/``/.test(msg.content)||bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
+		if (msg.guild) {
+			if (msg.guild.memberCount>=2000) return
+		}
 		let out;
 		last = msg;
 		const snd = function snd(chan,data) {
@@ -114,6 +117,7 @@ clt.on("message",msg=>{
 				if(clt.user.id!=msg.author.id)return
 			}
 		});
+		if (!msg.content.startsWith(bot.prefix)) return
 		if (out=bot.commands.ins().filter(com=>{return new RegExp("^!!"+com,"i").test(msg.content)})[0]) {
 			if (eval("("+(bot.commands[out]||nul)+")(msg)")) {
 				return;
@@ -136,17 +140,29 @@ clt.on("messageReactionRemove",(emj,usr)=>{
 	}
 });
 clt.on("guildMemberAdd",mmb=>{
-	if (bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)) return
-	var wl = null;
-	if (Object.keys(bot.welcome).some(wlc=>mmb.guild.id==(wl=wlc))) {
-		mmb.guild.defaultChannel.send(bot.welcome[wl].replace(/\$USER/g,mmb));
+	try {
+		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)) {
+			mmb.guild.channels.array().forEach(chn=>{
+				if (chn.id in bot.welcome) {
+					chn.send(bot.welcome[mmb.chn.id].replace(/\$USER/g,mmb).replace(/\$GUILD/g,mmb.guild.name));
+				}
+			});
+		}
+	} catch (a) {
+		console.warn(`${a.lineNumber}, ${a.name}: ${a.message}`);
 	}
 });
 clt.on("guildMemberRemove",mmb=>{
-	if (bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)) return
-	var wl = null;
-	if (Object.keys(bot.goodbye).some(wlc=>mmb.guild.id==(wl=wlc))) {
-		mmb.guild.defaultChannel.send(bot.goodbye[wl].replace(/\$USER/g,mmb));
+	try {
+		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)) {
+			mmb.guild.channels.array().forEach(chn=>{
+				if (chn.id in bot.goodbye) {
+					chn.send(bot.goodbye[mmb.chn.id].replace(/\$USER/g,mmb).replace(/\$GUILD/g,mmb.guild.name));
+				}
+			});
+		}
+	} catch (a) {
+		console.warn(`${a.lineNumber}, ${a.name}: ${a.message}`);
 	}
 });
 clt.on("messageUpdate",(old,msg)=>{
