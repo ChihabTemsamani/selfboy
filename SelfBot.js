@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
 var bot, last;
+allow = false; //this converts selfbot to userbot, use wisely
 falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
 nul = function nul() {}//nul
 rnd = function rnd(frm,to,rd) {
@@ -84,7 +85,7 @@ clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
 	clt.user.setPresence(bot.status);
-	setInterval(()=>{bot.status.status=fs.readFileSync("status.txt").toString();clt.user.setPresence(bot.status)},2000);
+	setInterval(()=>{bot.status.status=fs.readFileSync("status.txt").toString();clt.user.setPresence(bot.status)},5000);
 });
 clt.on("message",msg=>{
 	try {
@@ -117,7 +118,7 @@ clt.on("message",msg=>{
 				if(clt.user.id!=msg.author.id)return
 			}
 		});
-		if (!msg.content.startsWith(bot.prefix)) return
+		if ((msg.author.id!=clt.user.id&&!allow)||!msg.content.startsWith(bot.prefix)) return
 		if (out=bot.commands.ins().filter(com=>{return new RegExp("^!!"+com,"i").test(msg.content)})[0]) {
 			if (eval("("+(bot.commands[out]||nul)+")(msg)")) {
 				return;
@@ -128,23 +129,23 @@ clt.on("message",msg=>{
 	}
 });
 clt.on("messageReactionAdd",(emj,usr)=>{
-	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)) return
+	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)||!allow) return
 	if (bot.vote.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)) {
 		emj.message.react(emj.emoji);
 	}
 });
 clt.on("messageReactionRemove",(emj,usr)=>{
-	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)) return
+	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)||!allow) return
 	if (emj.users.array().length<=1) {
 		emj.remove(clt.user);
 	}
 });
 clt.on("guildMemberAdd",mmb=>{
 	try {
-		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)) {
+		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)&&allow) {
 			mmb.guild.channels.array().forEach(chn=>{
 				if (chn.id in bot.welcome) {
-					chn.send(bot.welcome[mmb.chn.id].replace(/\$USER/g,mmb).replace(/\$GUILD/g,mmb.guild.name));
+					chn.send(bot.welcome[chn.id].replace(/\$USER/g,mmb).replace(/\$GUILD/g,mmb.guild.name));
 				}
 			});
 		}
@@ -154,10 +155,10 @@ clt.on("guildMemberAdd",mmb=>{
 });
 clt.on("guildMemberRemove",mmb=>{
 	try {
-		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)) {
+		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)&&allow) {
 			mmb.guild.channels.array().forEach(chn=>{
 				if (chn.id in bot.goodbye) {
-					chn.send(bot.goodbye[mmb.chn.id].replace(/\$USER/g,mmb).replace(/\$GUILD/g,mmb.guild.name));
+					chn.send(bot.goodbye[chn.id].replace(/\$USER/g,mmb.user.username).replace(/\$GUILD/g,mmb.guild.name));
 				}
 			});
 		}
@@ -166,7 +167,7 @@ clt.on("guildMemberRemove",mmb=>{
 	}
 });
 clt.on("messageUpdate",(old,msg)=>{
-	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
+	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)||!allow) return
 	if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
 		bot.reactwords.ins().forEach(val=>{
 			if (new RegExp(val,"gi").test(msg.content)) {
