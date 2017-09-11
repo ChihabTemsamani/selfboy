@@ -85,7 +85,7 @@ clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
 	clt.user.setPresence(bot.status);
-	setInterval(()=>{bot.status.status=fs.readFileSync("status.txt").toString();clt.user.setPresence(bot.status)},5000);
+	setInterval(()=>{let tmp=fs.readFileSync("status.txt").toString();if(tmp!=bot.status.status){bot.status.status=tmp;clt.user.setPresence(bot.status)}},5000);
 });
 clt.on("message",msg=>{
 	try {
@@ -105,20 +105,20 @@ clt.on("message",msg=>{
 				msg.edit(msg.content.replace(/\{shru?g?s?\}/gmi,"¯\\_(ツ)_/¯").replace(/\{lenn?y?s?\}/gmi,"(͡° ͜ʖ ͡°)").replace(/\{eval (.+?)\}/gmi,(mat,p)=>eval(p)));
 			}
 		}
-		if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+		if (msg.channel.reactspam&&allow&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
 			bot.reactwords.ins().forEach(val=>{
 				if (new RegExp(val,"gi").test(msg.content)) {
 					msg.react(bot.reactwords[val].rnd());
 				}
 			});
 		}
+		if ((msg.author.id!=clt.user.id&&!allow)||!msg.content.startsWith(bot.prefix)) return
 		bot.banwords.forEach(val=>{
 			if (new RegExp(val,"gi").test(msg.content)) {
 				msg.delete();
 				if(clt.user.id!=msg.author.id)return
 			}
 		});
-		if ((msg.author.id!=clt.user.id&&!allow)||!msg.content.startsWith(bot.prefix)) return
 		if (out=bot.commands.ins().filter(com=>{return new RegExp("^!!"+com,"i").test(msg.content)})[0]) {
 			if (eval("("+(bot.commands[out]||nul)+")(msg)")) {
 				return;
