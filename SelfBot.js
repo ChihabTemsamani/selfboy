@@ -101,14 +101,12 @@ clt.on("message",msg=>{
 		msg.channel.reactspam = bot.reacts.some(val=>val==msg.channel.id);
 		msg.channel.votespam = bot.vote.some(val=>val==msg.channel.id);
 		if (msg.author.id==clt.user.id) {
-			if((out=bot.replace.ins().filter(val=>{if(new RegExp(val,"gmi").test(msg.content)){return true}else{return false}})).length) {
-				out.forEach(val=>{
-					msg.content = msg.content.replace(new RegExp(val,"gmi"),eval(bot.replace[val]));
+			if(/\{.+?\}/gmi.test(msg.content)) {
+				let init = msg.content;
+				bot.replace.ins().filter(val=>{if(new RegExp(val,"gmi").test(msg.content)){return true}else{return false}}).forEach(val=>{
+					eval(bot.replace[val]);
 				});
-				if (/\{eva?l? .*?\}/gmi.test(msg.content)) {
-					msg.content = msg.content.replace(/\{eva?l? (.+?)\}/gmi,(mat,p)=>eval(p));
-				}
-				msg.edit(msg.content);
+				if (init!=msg.content) msg.edit(msg.content);
 			}
 		}
 		if (msg.channel.reactspam&&allow&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
