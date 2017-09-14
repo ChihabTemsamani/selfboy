@@ -109,12 +109,16 @@ clt.on("message",msg=>{
 				if (init!=msg.content) msg.edit(msg.content);
 			}
 		}
+		if (typeof msg.content!="string") return
 		if (msg.channel.reactspam&&allow&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
 			bot.reactwords.ins().forEach(val=>{
 				if (new RegExp(val,"gi").test(msg.content)) {
 					msg.react(bot.reactwords[val].rnd());
 				}
 			});
+		}
+		if (msg.author.id!=clt.user.id&&!allow&&msg.content.startsWith(bot.prefix)) {
+			console.log(`${msg.author.tag} tried to use '${msg.content}' in ${(msg.guild||msg.channel).name} at ${new Date()}`);
 		}
 		if ((msg.author.id!=clt.user.id&&!allow)||!msg.content.startsWith(bot.prefix)) return
 		bot.banwords.forEach(val=>{
