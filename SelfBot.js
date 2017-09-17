@@ -1,12 +1,18 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
+<<<<<<< HEAD
 var bot, last;
 allow = false; //this converts selfbot to userbot, use wisely
 falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
+=======
+var bot, last, falseReg, nul, rnd, snd, sav, rel, rep;
+// falseReg = /^(false|null|""|''|0|off|no|[]|{}|`)$`/gi; (what is this?)
+falseReg = /^(false|null|""|''|0|off|no|[]|{}|`)$/gi;
+>>>>>>> 59e4e83d28a04be28330b37223232084ee9e1ea2
 nul = function nul() {}//nul
 rnd = function rnd(frm,to,rd) {
-	if (frm===undefined) {
+	if (!frm) {
 		return "#"+Math.round(Math.random()*16777215).toString(16);
 	} else {
 		to = to===undefined?frm:to;
@@ -17,9 +23,9 @@ rnd = function rnd(frm,to,rd) {
 		return !rd?Math.round(Math.random()*(to-frm)+frm):(Math.random()*(to-frm)+frm);
 	}
 }//rnd
-snd = function snd(chan,data) {
-	return clt.channels.find("id",chan+"").send(data);
-};
+/*snd = function snd(chan,data) {
+	return clt.channels.get(chan+"").send(data);
+}; (why are you defining `snd` here? apparently line 87 you did so and you never use the function)*/
 sav = function sav() {
 	fs.writeFileSync("Bot.json",JSON.stringify(bot));
 }//sav
@@ -35,7 +41,7 @@ rep = function rep(cnt,com,ini) {
 			val.push(com(stp));
 		}
 	}
-	return val.filter(function(va){return va!==undefined;});
+	return val.filter(function(va){return va});
 }//rep
 alt = function alt(bool) {
 	return !Boolean(bool);
@@ -60,6 +66,7 @@ String.prototype.rnd = function() {
 Object.prototype.ins = function() {
 	return Object.keys(this);
 };
+// try to camelCase things when creating methods
 Object.prototype.Ins = function() {
 	let arr = [];
 	for (prp in this) {
@@ -68,7 +75,7 @@ Object.prototype.Ins = function() {
 	return arr;
 };
 Array.prototype.split = function() {
-	return this;
+	return this; // what?
 };
 Array.prototype.rmv = String.prototype.rmv = function(elm) {
 	var arr = this.split("");
@@ -94,10 +101,10 @@ clt.on("message",msg=>{
 			if (msg.guild.memberCount>=2000) return
 		}
 		let out;
-		last = msg;
-		const snd = function snd(chan,data) {
+		// last = msg;
+		/*const snd = function snd(chan,data) {
 			return clt.channels.find("id",chan+"").send(data.replace(/\$HERE/g,last.channel).replace(/\$ME/g,last.author));
-		};
+		};*/
 		msg.channel.reactspam = bot.reacts.some(val=>val==msg.channel.id);
 		msg.channel.votespam = bot.vote.some(val=>val==msg.channel.id);
 		if (msg.author.id==clt.user.id) {
@@ -175,8 +182,13 @@ clt.on("guildMemberRemove",mmb=>{
 	}
 });
 clt.on("messageUpdate",(old,msg)=>{
+<<<<<<< HEAD
 	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)||!allow) return
 	if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+=======
+	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
+	if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&/```/.test(msg.content))) {
+>>>>>>> 59e4e83d28a04be28330b37223232084ee9e1ea2
 		bot.reactwords.ins().forEach(val=>{
 			if (new RegExp(val,"gi").test(msg.content)) {
 				msg.react(bot.reactwords[val].rnd());
