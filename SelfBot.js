@@ -1,18 +1,13 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
-<<<<<<< HEAD
 var bot, last;
-allow = false; //this converts selfbot to userbot, use wisely
-falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
-=======
-var bot, last, falseReg, nul, rnd, snd, sav, rel, rep;
-// falseReg = /^(false|null|""|''|0|off|no|[]|{}|`)$`/gi; (what is this?)
-falseReg = /^(false|null|""|''|0|off|no|[]|{}|`)$/gi;
->>>>>>> 59e4e83d28a04be28330b37223232084ee9e1ea2
-nul = function nul() {}//nul
-rnd = function rnd(frm,to,rd) {
-	if (!frm) {
+const allow = false; //this converts selfbot to userbot, use wisely
+const falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
+const nul = function nul() {}//nul
+// ^ why are u doing this? eval(nul+"") srsly?
+const rnd = function rnd(frm,to,rd) {
+	if (frm===undefined) {
 		return "#"+Math.round(Math.random()*16777215).toString(16);
 	} else {
 		to = to===undefined?frm:to;
@@ -23,16 +18,10 @@ rnd = function rnd(frm,to,rd) {
 		return !rd?Math.round(Math.random()*(to-frm)+frm):(Math.random()*(to-frm)+frm);
 	}
 }//rnd
-/*snd = function snd(chan,data) {
-	return clt.channels.get(chan+"").send(data);
-}; (why are you defining `snd` here? apparently line 87 you did so and you never use the function)*/
-sav = function sav() {
-	fs.writeFileSync("Bot.json",JSON.stringify(bot));
+const sav = function sav() {
+	fs.writeFileSync("Bot.json", JSON.stringify(bot));
 }//sav
-rel = function rel() {
-	bot = JSON.parse(fs.readFileSync("Bot.json"));
-}//rel
-rep = function rep(cnt,com,ini) {
+const rep = function rep(cnt,com,ini) {
 	var val = [];
 	for (var stp = (ini?ini:0); stp < cnt+(ini?ini:0); stp++) {
 		if (typeof com=="string") {
@@ -41,13 +30,10 @@ rep = function rep(cnt,com,ini) {
 			val.push(com(stp));
 		}
 	}
-	return val.filter(function(va){return va});
+	return val.filter(function(va){return va!==undefined;});
 }//rep
-alt = function alt(bool) {
-	return !Boolean(bool);
-}//alt
 Object.prototype.alt = function() {
-	return alt(this);
+	return !Boolean(this);
 };
 Math.rnd = rnd;
 Number.prototype.rnd = function(frm,rd) {
@@ -66,7 +52,6 @@ String.prototype.rnd = function() {
 Object.prototype.ins = function() {
 	return Object.keys(this);
 };
-// try to camelCase things when creating methods
 Object.prototype.Ins = function() {
 	let arr = [];
 	for (prp in this) {
@@ -75,7 +60,7 @@ Object.prototype.Ins = function() {
 	return arr;
 };
 Array.prototype.split = function() {
-	return this; // what?
+	return this;
 };
 Array.prototype.rmv = String.prototype.rmv = function(elm) {
 	var arr = this.split("");
@@ -96,15 +81,12 @@ clt.on('ready',()=>{
 });
 clt.on("message",msg=>{
 	try {
-		if (/``/.test(msg.content)||bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
+		if (/```/.test(msg.content)||bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
 		if (msg.guild) {
 			if (msg.guild.memberCount>=2000) return
 		}
 		let out;
-		// last = msg;
-		/*const snd = function snd(chan,data) {
-			return clt.channels.find("id",chan+"").send(data.replace(/\$HERE/g,last.channel).replace(/\$ME/g,last.author));
-		};*/
+		last = msg;
 		msg.channel.reactspam = bot.reacts.some(val=>val==msg.channel.id);
 		msg.channel.votespam = bot.vote.some(val=>val==msg.channel.id);
 		if (msg.author.id==clt.user.id) {
@@ -182,13 +164,8 @@ clt.on("guildMemberRemove",mmb=>{
 	}
 });
 clt.on("messageUpdate",(old,msg)=>{
-<<<<<<< HEAD
 	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)||!allow) return
 	if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
-=======
-	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
-	if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&/```/.test(msg.content))) {
->>>>>>> 59e4e83d28a04be28330b37223232084ee9e1ea2
 		bot.reactwords.ins().forEach(val=>{
 			if (new RegExp(val,"gi").test(msg.content)) {
 				msg.react(bot.reactwords[val].rnd());
@@ -205,5 +182,5 @@ clt.on("messageUpdate",(old,msg)=>{
 clt.on("disconnect",evt=>{
 	clt.login(tkn);
 });
-tkn = null;
+const tkn = null;
 clt.login(tkn);
