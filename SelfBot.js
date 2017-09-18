@@ -2,10 +2,9 @@ const Discord = require("discord.js");
 const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
 var bot, last;
-const allow = false; //this converts selfbot to userbot, use wisely
+allow = false; //this converts selfbot to userbot, use wisely
 const falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
 const nul = function nul() {}//nul
-// ^ why are u doing this? eval(nul+"") srsly?
 const rnd = function rnd(frm,to,rd) {
 	if (frm===undefined) {
 		return "#"+Math.round(Math.random()*16777215).toString(16);
@@ -18,9 +17,15 @@ const rnd = function rnd(frm,to,rd) {
 		return !rd?Math.round(Math.random()*(to-frm)+frm):(Math.random()*(to-frm)+frm);
 	}
 }//rnd
+const snd = function snd(chan,data) {
+	return clt.channels.find("id",chan+"").send(data);
+};
 const sav = function sav() {
-	fs.writeFileSync("Bot.json", JSON.stringify(bot));
+	fs.writeFileSync("Bot.json",JSON.stringify(bot));
 }//sav
+const rel = function rel() {
+	bot = JSON.parse(fs.readFileSync("Bot.json"));
+}//rel
 const rep = function rep(cnt,com,ini) {
 	var val = [];
 	for (var stp = (ini?ini:0); stp < cnt+(ini?ini:0); stp++) {
@@ -32,8 +37,11 @@ const rep = function rep(cnt,com,ini) {
 	}
 	return val.filter(function(va){return va!==undefined;});
 }//rep
+const alt = function alt(bool) {
+	return !Boolean(bool);
+}//alt
 Object.prototype.alt = function() {
-	return !Boolean(this);
+	return alt(this);
 };
 Math.rnd = rnd;
 Number.prototype.rnd = function(frm,rd) {
@@ -81,12 +89,15 @@ clt.on('ready',()=>{
 });
 clt.on("message",msg=>{
 	try {
-		if (/```/.test(msg.content)||bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
+		if (/``/.test(msg.content)||bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
 		if (msg.guild) {
 			if (msg.guild.memberCount>=2000) return
 		}
 		let out;
 		last = msg;
+		const snd = function snd(chan,data) {
+			return clt.channels.find("id",chan+"").send(data.replace(/\$HERE/g,last.channel).replace(/\$ME/g,last.author));
+		};
 		msg.channel.reactspam = bot.reacts.some(val=>val==msg.channel.id);
 		msg.channel.votespam = bot.vote.some(val=>val==msg.channel.id);
 		if (msg.author.id==clt.user.id) {
@@ -182,5 +193,5 @@ clt.on("messageUpdate",(old,msg)=>{
 clt.on("disconnect",evt=>{
 	clt.login(tkn);
 });
-const tkn = null;
+tkn = null;
 clt.login(tkn);
