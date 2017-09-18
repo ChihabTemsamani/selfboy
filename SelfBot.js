@@ -3,9 +3,9 @@ const fs = require("fs");
 const clt = new Discord.Client({disableEveryone:true});
 var bot, last;
 allow = false; //this converts selfbot to userbot, use wisely
-falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
-nul = function nul() {}//nul
-rnd = function rnd(frm,to,rd) {
+const falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
+const nul = function nul() {}//nul
+const rnd = function rnd(frm,to,rd) {
 	if (frm===undefined) {
 		return "#"+Math.round(Math.random()*16777215).toString(16);
 	} else {
@@ -17,16 +17,16 @@ rnd = function rnd(frm,to,rd) {
 		return !rd?Math.round(Math.random()*(to-frm)+frm):(Math.random()*(to-frm)+frm);
 	}
 }//rnd
-snd = function snd(chan,data) {
+const snd = function snd(chan,data) {
 	return clt.channels.find("id",chan+"").send(data);
 };
-sav = function sav() {
+const sav = function sav() {
 	fs.writeFileSync("Bot.json",JSON.stringify(bot));
 }//sav
-rel = function rel() {
+const rel = function rel() {
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
 }//rel
-rep = function rep(cnt,com,ini) {
+const rep = function rep(cnt,com,ini) {
 	var val = [];
 	for (var stp = (ini?ini:0); stp < cnt+(ini?ini:0); stp++) {
 		if (typeof com=="string") {
@@ -37,7 +37,7 @@ rep = function rep(cnt,com,ini) {
 	}
 	return val.filter(function(va){return va!==undefined;});
 }//rep
-alt = function alt(bool) {
+const alt = function alt(bool) {
 	return !Boolean(bool);
 }//alt
 Object.prototype.alt = function() {
