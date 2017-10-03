@@ -1,11 +1,14 @@
 const Discord = require("discord.js");
 const fs = require("fs");
+const request = require("request")
+const http = require("http")
+const cheerio = require("cheerio")
 const clt = new Discord.Client({disableEveryone:true});
 var bot, last;
 allow = false; //this converts selfbot to userbot, use wisely
-const falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
-const nul = function nul() {}//nul
-const rnd = function rnd(frm,to,rd) {
+falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
+nul = function nul() {}//nul
+rnd = function rnd(frm,to,rd) {
 	if (frm===undefined) {
 		return "#"+Math.round(Math.random()*16777215).toString(16);
 	} else {
@@ -17,16 +20,16 @@ const rnd = function rnd(frm,to,rd) {
 		return !rd?Math.round(Math.random()*(to-frm)+frm):(Math.random()*(to-frm)+frm);
 	}
 }//rnd
-const snd = function snd(chan,data) {
+snd = function snd(chan,data) {
 	return clt.channels.find("id",chan+"").send(data);
 };
-const sav = function sav() {
-	fs.writeFileSync("Bot.json",JSON.stringify(bot));
+sav = function sav() {
+	fs.writeFileSync("Bot.json",JSON.stringify(bot,null,2));
 }//sav
-const rel = function rel() {
+rel = function rel() {
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
 }//rel
-const rep = function rep(cnt,com,ini) {
+rep = function rep(cnt,com,ini) {
 	var val = [];
 	for (var stp = (ini?ini:0); stp < cnt+(ini?ini:0); stp++) {
 		if (typeof com=="string") {
@@ -37,7 +40,7 @@ const rep = function rep(cnt,com,ini) {
 	}
 	return val.filter(function(va){return va!==undefined;});
 }//rep
-const alt = function alt(bool) {
+alt = function alt(bool) {
 	return !Boolean(bool);
 }//alt
 Object.prototype.alt = function() {
@@ -85,7 +88,7 @@ clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
 	clt.user.setPresence(bot.status);
-	setInterval(()=>{let tmp=fs.readFileSync("status.txt").toString();if(tmp!=bot.status.status){bot.status.status=tmp;clt.user.setPresence(bot.status)}},5000);
+	stats = setInterval(stat=()=>{let tmp=fs.readFileSync("status.txt").toString();if(tmp!=bot.status.status){bot.status.status=tmp;clt.user.setPresence(bot.status)}},5000);
 });
 clt.on("message",msg=>{
 	try {
@@ -118,7 +121,7 @@ clt.on("message",msg=>{
 			});
 		}
 		if (msg.author.id!=clt.user.id&&!allow&&msg.content.startsWith(bot.prefix)) {
-			console.log(`${msg.author.tag} tried to use '${msg.content}' in ${(msg.guild||msg.channel).name} at ${new Date()}`);
+			console.info(`${msg.author.tag} tried to use '${msg.content}' in ${(msg.guild||msg.channel).name} at ${new Date()}`);
 		}
 		if ((msg.author.id!=clt.user.id&&!allow)||!msg.content.startsWith(bot.prefix)) return
 		bot.banwords.forEach(val=>{
@@ -175,6 +178,15 @@ clt.on("guildMemberRemove",mmb=>{
 	}
 });
 clt.on("messageUpdate",(old,msg)=>{
+	if (msg.author.id==clt.user.id) {
+		if(/\{.+?\}/gmi.test(msg.content)) {
+			let init = msg.content;
+			bot.replace.ins().filter(val=>{if(new RegExp(val,"gmi").test(msg.content)){return true}else{return false}}).forEach(val=>{
+				eval(bot.replace[val]);
+			});
+			if (init!=msg.content) msg.edit(msg.content);
+		}
+	}
 	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)||!allow) return
 	if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
 		bot.reactwords.ins().forEach(val=>{
@@ -193,5 +205,32 @@ clt.on("messageUpdate",(old,msg)=>{
 clt.on("disconnect",evt=>{
 	clt.login(tkn);
 });
+function get(url) {
+	return new Promise((rsl,rej)=> {
+		http.get(url,res=> {
+			const {statusCode} = res;
+			const contentType = res.headers["content-type"];
+			let error;
+			if (statusCode!=200) {
+    			error = new Error(`Request Failed.\nStatus Code: ${statusCode}`);
+			}
+			if (error) {
+    			console.warn(error.message);
+    			res.resume();
+    			rej("\n"+error);
+    			return;
+			}
+			res.setEncoding('utf8');
+			let dat = '';
+			res.on('data',chn=>{dat += chn;});
+			res.on('end',()=> {
+   	 		rsl(dat);
+			});
+		}).on('error',e=> {
+			console.error(`Got error: ${e.message}`);
+			rej(e);
+		});
+	});
+}//get
 tkn = null;
 clt.login(tkn);
