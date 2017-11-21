@@ -1,11 +1,11 @@
 const Discord = require("discord.js");
 const fs = require("fs");
-const request = require("request")
-const http = require("http")
-const cheerio = require("cheerio")
+const request = require("request");
+const http = require("http");
+const cheerio = require("cheerio");
 const clt = new Discord.Client({disableEveryone:true});
-var bot, last;
-allow = false; //this converts selfbot to userbot, use wisely
+var bot, last, cons = "";
+limit = 1000;
 falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
 nul = function nul() {}//nul
 rnd = function rnd(frm,to,rd) {
@@ -84,25 +84,31 @@ Array.prototype.rmv = String.prototype.rmv = function(elm) {
 	}
 	return arr;
 };
+Array.prototype.has = function has(elm) {
+	return this.indexOf(elm)>=0;
+};
 clt.on('ready',()=>{
 	console.log(`Logged in as ${clt.user.tag}!`);
 	bot = JSON.parse(fs.readFileSync("Bot.json"));
 	clt.user.setPresence(bot.status);
 	stats = setInterval(stat=()=>{let tmp=fs.readFileSync("status.txt").toString();if(tmp!=bot.status.status){bot.status.status=tmp;clt.user.setPresence(bot.status)}},5000);
 });
-clt.on("message",msg=>{
+clt.on("message",async msg=>{
 	try {
 		if (/``/.test(msg.content)||bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)) return
 		if (msg.guild) {
-			if (msg.guild.memberCount>=2000) return
+			if (msg.guild.memberCount>=limit) return
+		} else {
+			msg.guild = {};
 		}
-		let out;
+		let out, chn = msg.channel, gld = msg.guild;
 		last = msg;
 		const snd = function snd(chan,data) {
 			return clt.channels.find("id",chan+"").send(data.replace(/\$HERE/g,last.channel).replace(/\$ME/g,last.author));
 		};
 		msg.channel.reactspam = bot.reacts.some(val=>val==msg.channel.id);
 		msg.channel.votespam = bot.vote.some(val=>val==msg.channel.id);
+		msg.channel.allow = bot.allow.has(msg.channel.id+'')||bot.allow.has((msg.guild?msg.guild.id:'')+'');
 		if (msg.author.id==clt.user.id) {
 			if(/\{.+?\}/gmi.test(msg.content)) {
 				let init = msg.content;
@@ -113,17 +119,17 @@ clt.on("message",msg=>{
 			}
 		}
 		if (typeof msg.content!="string") return
-		if (msg.channel.reactspam&&allow&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
+		if (msg.channel.reactspam&&msg.channel.allow&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
 			bot.reactwords.ins().forEach(val=>{
 				if (new RegExp(val,"gi").test(msg.content)) {
 					msg.react(bot.reactwords[val].rnd());
 				}
 			});
 		}
-		if (msg.author.id!=clt.user.id&&!allow&&msg.content.startsWith(bot.prefix)) {
+		if (msg.author.id!=clt.user.id&&!msg.channel.allow&&msg.content.startsWith(bot.prefix)) {
 			console.info(`${msg.author.tag} tried to use '${msg.content}' in ${(msg.guild||msg.channel).name} at ${new Date()}`);
 		}
-		if ((msg.author.id!=clt.user.id&&!allow)||!msg.content.startsWith(bot.prefix)) return
+		if ((msg.author.id!=clt.user.id&&!msg.channel.allow)||!msg.content.startsWith(bot.prefix)) return
 		bot.banwords.forEach(val=>{
 			if (new RegExp(val,"gi").test(msg.content)) {
 				msg.delete();
@@ -131,29 +137,30 @@ clt.on("message",msg=>{
 			}
 		});
 		if (out=bot.commands.ins().filter(com=>{return new RegExp("^!!"+com,"i").test(msg.content)})[0]) {
-			if (eval("("+(bot.commands[out]||nul)+")(msg)")) {
+			if (eval("("+(bot.commands[out]||nul)+")(msg,msg.content,msg.channel,msg.author)")) {
 				return;
 			}
 		}
 	} catch (a) {
-		console.warn(`${a.lineNumber}, ${a.name}: ${a.message}`);
+		console.warn(cons+=`${a.lineNumber}, ${a.name}: ${a.message}`);
+		cons += "\n";
 	}
 });
 clt.on("messageReactionAdd",(emj,usr)=>{
-	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)||!allow) return
+	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)||!bot.allow.has((emj.message.guild||emj.message.channel).id+"")) return
 	if (bot.vote.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)) {
 		emj.message.react(emj.emoji);
 	}
 });
 clt.on("messageReactionRemove",(emj,usr)=>{
-	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)||!allow) return
+	if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)||!bot.allow.has((emj.message.guild||emj.message.channel).id+"")) return
 	if (emj.users.array().length<=1) {
 		emj.remove(clt.user);
 	}
 });
 clt.on("guildMemberAdd",mmb=>{
 	try {
-		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)&&allow) {
+		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)&&bot.allow.has(mmb.guild.id+"")) {
 			mmb.guild.channels.array().forEach(chn=>{
 				if (chn.id in bot.welcome) {
 					chn.send(bot.welcome[chn.id].replace(/\$USER/g,mmb).replace(/\$GUILD/g,mmb.guild.name));
@@ -166,7 +173,7 @@ clt.on("guildMemberAdd",mmb=>{
 });
 clt.on("guildMemberRemove",mmb=>{
 	try {
-		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)&&allow) {
+		if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)&&bot.allow.has(mmb.guild.id+"")) {
 			mmb.guild.channels.array().forEach(chn=>{
 				if (chn.id in bot.goodbye) {
 					chn.send(bot.goodbye[chn.id].replace(/\$USER/g,mmb.user.username).replace(/\$GUILD/g,mmb.guild.name));
@@ -187,7 +194,7 @@ clt.on("messageUpdate",(old,msg)=>{
 			if (init!=msg.content) msg.edit(msg.content);
 		}
 	}
-	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)||!allow) return
+	if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)||!bot.allow.has(msg.channel.id+"")) return
 	if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
 		bot.reactwords.ins().forEach(val=>{
 			if (new RegExp(val,"gi").test(msg.content)) {
@@ -205,7 +212,7 @@ clt.on("messageUpdate",(old,msg)=>{
 clt.on("disconnect",evt=>{
 	clt.login(tkn);
 });
-function get(url) {
+async function get(url) {
 	return new Promise((rsl,rej)=> {
 		http.get(url,res=> {
 			const {statusCode} = res;
