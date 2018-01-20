@@ -2,7 +2,8 @@
   
 Discord SelfBot (*UserBot*)  
   
-[Wiki](wiki)  [Code](Bot.json)  
+[Wiki](wiki)  
+[Code](Bot.json)  
   
 ***  
   
