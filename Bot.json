@@ -1,9 +1,9 @@
 {
-  "prefix": "/",
+  "prefix": "!!",
   "status": {
     "status": "online",
     "game": {
-      "name": "Listening to /",
+      "name": "Listening to !!",
       "type": 0,
       "url": false
     },
@@ -30,7 +30,7 @@
     "\\{rg .+\\}(?!(\\}|,))": "msg.content=msg.content.replace(/\\{rg (.+?)\\}/gmi,(mat,p)=>p.toLowerCase().split('').map(val=>val.replace(/^([a-z])$/g,':regional_indicator_$1:').replace(/^([*\\-+/?!$0-9])$/,mat=>{return {'!':':exclamation:','?':':question:','+':':heavy_plus_sign:','-':':heavy_minus_sign:','/':':heavy_division_sign:',':':':heavy_division_sign:','$':':heavy_dollar_sign:','*':':eight_pointed_black_star:',' ':'  ','0':':zero:','1':':one:','2':':two:','3':':three:','4':':four:','5':':five:','6':':six:','7':':seven:','8':':eight:','9':':nine:'}[mat]})).join(''))",
     "\\{vap(or(wave?)?)? ?(\\d+)? (.+?)\\}(?!(\\}|,))": "msg.content=msg.content.replace(/\\{vap(or(wave?)?)? ?(\\d{1,2})? (.+?)\\}(?!(\\}|,))/gmi,mat=>(/^[0-9]{1,2}$/gmi.test(mat.split(' ')[1])&&mat.split(' ').length>=2?mat.split(' ').slice(2).join(' '):mat.split(' ').slice(1).join(' ')).replace(/.$/,'').split('').join(' '.repeat(/^[0-9]{1,2}$/gmi.test(mat.split(' ')[1])&&mat.split(' ').length>=2?mat.split(' ')[1]:1)))"
   },
-  "banwords": [],
+  "banwords": ["\bnazi\b"],
   "welcome": {},
   "goodbye": {},
   "commands": {
@@ -72,7 +72,8 @@
     "miku(day|cheer|w(ha|o|u)t|lewd|bored|hi|peep|love|angry|kiss)$": "function(msg){let chs=/day/i.test(msg.content)?'./../../Pictures/Pictures/Anime/Mikuday.jpg':(/w(ha|o|u)t/gi.test(msg.content)?'https://cdn.discordapp.com/emojis/320491383230300161.png':(/cheer/i.test(msg.content)?'https://cdn.discordapp.com/emojis/320491256340021249.png':(/lewd/i.test(msg.content)?'./../../Pictures/Pictures/.Hid/LewdMiku.jpeg':(/peep/i.test(msg.content)?'https://cdn.discordapp.com/emojis/321910924141395968.png':(/hi/i.test(msg.content)?'https://cdn.discordapp.com/emojis/335775103272878080.png':(/love/i.test(msg.content)?'https://cdn.discordapp.com/emojis/321910879274926090.png':'https://cdn.discordapp.com/emojis/321911151619473408.png'))))));if(clt.user.id==msg.author.id){msg.channel.send({file:chs});msg.delete()}else if(!/lewd/i.test(msg.content)){msg.reply({file:chs})}else{msg.author.send({file:chs})}}",
     "(stop|start)$": "function(msg){if(msg.author.id==clt.user.id){clt.stop=msg.content==bot.prefix+'stop';inter.forEach(ths=>clearInterval(ths));inter=[]}}",
     "(stop)?say(ing)?(( \\d+?)? (.|\\n)+)?": "function(msg,cnt,chn,aut,gld){if(msg.bot){if(!/[^ ]stopsay$/g.test(cnt)){inter.push(setInterval(()=>{chn.send(cnt.split(' ').slice(2).join(' ')||cnt.split(' ').slice(1).join(' '))},cnt.split(' ')[1]*1||1000))}else{inter.forEach(ths=>clearInterval(ths));inter=[]}msg.delete()}}",
-    "u?notes?( (.|\\n)*$)?": "function(msg,cnt,chn,aut,gld){if(msg.bot){if(cnt.startsWith(bot.prefix+'notes')){msg.channel.send('```'+bot.notes.join('\\n')+'```')}else if(!cnt.startsWith(bot.prefix+'u')){bot.notes.push(cnt.split(' ').slice(1).join(' '));sav()}else{bot.notes.rmv(cnt.split(' ').slice(1).join(' '));sav()};msg.delete()}}"
+    "u?notes?( (.|\\n)*$)?": "function(msg,cnt,chn,aut,gld){if(msg.bot){if(cnt.startsWith(bot.prefix+'notes')){msg.channel.send('```'+bot.notes.join('\\n')+'```')}else if(!cnt.startsWith(bot.prefix+'u')){bot.notes.push(cnt.split(' ').slice(1).join(' '));sav()}else{bot.notes.rmv(cnt.split(' ').slice(1).join(' '));sav()};msg.delete()}}",
+    "(un)?banwords? .+$": "function(msg,cnt,chn,aut,gld) {if(msg.bot&&!/[^ ]*banwords$/i.test(cnt)&&!/[^ ]*?unbanword/i.test(cnt)){bot.banwords.add(cnt.split(' ').slice(1).join(' '));sav()}else if(/[^ ]*?banwords&/i.test(cnt)){msg.reply('```js\\n'+bot.banwords+'```')}else if(/[^ ]*?unbanword/i.test(cnt)){bot.banwords.rmv(cnt.split(' ').slice(1).join(' '));sav()}}"
   },
   "notes": [],
   "intervals": [],
