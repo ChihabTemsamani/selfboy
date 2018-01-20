@@ -1,0 +1,32 @@
+{
+  "name": "nodemodule",
+  "version": "1.0.0",
+  "description": "A backend module, global polyfill + upgrades",
+  "main": "nodemodule.js",
+  "scripts": {
+    "start": "node nodemodule.js",
+    "test": "node nodemodule.js"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": "8.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ValentinHacker/NodeModule.git"
+  },
+  "keywords": [
+    "node",
+    "js",
+    "module"
+  ],
+  "author": "ValentinHacker",
+  "contributors": [
+    "ValentinHacker <alternativexxxy@gmail.com> (https://github.com/ValentinHacker)"
+  ],
+  "license": "ISC",
+  "bugs": {
+     "url": "https://github.com/ValentinHacker/NodeModule/issues"
+  },
+  "homepage": "https://github.com/ValentinHacker/NodeModule#readme"
+}
