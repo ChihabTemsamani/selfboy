@@ -1,0 +1,33 @@
+{
+  "name": "vale",
+  "version": "1.0.0",
+  "description": "A discord selfbot",
+  "main": "selfbot.js",
+  "scripts": {
+    "start": "node selfbot.js"
+  },
+  "dependencies": {
+    "./node_modules/nodemodule": ">=1.0.0"
+  },
+  "engines": {
+    "node": "8.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ValentinHacker/Vale.git"
+  },
+  "keywords": [
+    "node",
+    "js",
+    "discord"
+  ],
+  "author": "ValentinHacker",
+  "contributors": [
+    "ValentinHacker <alternativexxxy@gmail.com> (https://github.com/ValentinHacker)"
+  ],
+  "license": "ISC",
+  "bugs": {
+     "url": "https://github.com/ValentinHacker/Vale/issues"
+  },
+  "homepage": "https://github.com/ValentinHacker/Vale#readme"
+}
