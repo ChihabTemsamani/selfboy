@@ -1,13 +1,17 @@
 {
-  "name": "vale",
+  "name": "selfbot",
   "version": "1.0.0",
-  "description": "A discord selfbot",
-  "main": "selfbot.js",
+  "description": "A Discord selfbot",
+  "main": "SelfBot.js",
   "scripts": {
-    "start": "node selfbot.js"
+    "start": "node selfbot.js --no-deprecation"
   },
   "dependencies": {
-    "./node_modules/nodemodule": ">=1.0.0"
+    "cheerio": "^1.0.0-rc.2",
+    "discord.js": "^11.3.0",
+    "request": "^2.83.0",
+    "jsdom": "*",
+    "jimp": "*"
   },
   "engines": {
     "node": "8.3.0"
@@ -19,7 +23,8 @@
   "keywords": [
     "node",
     "js",
-    "discord"
+    "discord",
+    "userbot"
   ],
   "author": "ValentinHacker",
   "contributors": [
@@ -27,7 +32,9 @@
   ],
   "license": "ISC",
   "bugs": {
-     "url": "https://github.com/ValentinHacker/Vale/issues"
+    "url": "https://github.com/ValentinHacker/Vale/issues",
+    "email": "alternativexxxy@gmail.com"
   },
-  "homepage": "https://github.com/ValentinHacker/Vale#readme"
+  "homepage": "https://github.com/ValentinHacker/Vale#readme",
+  "devDependencies": {}
 }
