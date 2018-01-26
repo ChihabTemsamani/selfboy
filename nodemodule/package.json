@@ -1,0 +1,89 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "file:../node_modules/nodemodule",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "file:../node_modules/nodemodule",
+        "spec": "/storage/sdcard0/Web/Node/node_modules/nodemodule",
+        "type": "directory"
+      },
+      "/storage/sdcard0/Web/Node/selfbot"
+    ],
+    [
+      {
+        "raw": "./node_modules/nodemodule",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "./node_modules/nodemodule",
+        "spec": "/storage/sdcard0/Web/Node/selfbot/node_modules/nodemodule",
+        "type": "directory"
+      },
+      "/storage/sdcard0/Web/Node/selfbot"
+    ]
+  ],
+  "_from": "../node_modules/nodemodule",
+  "_id": "nodemodule@1.0.0",
+  "_inCache": true,
+  "_location": "/nodemodule",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "./node_modules/nodemodule",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "./node_modules/nodemodule",
+    "spec": "/storage/sdcard0/Web/Node/selfbot/node_modules/nodemodule",
+    "type": "directory"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "file:../node_modules/nodemodule",
+  "_shasum": "ef5237b3dc26146dbe700ccf4405ab5411afee6b",
+  "_shrinkwrap": null,
+  "_spec": "./node_modules/nodemodule",
+  "_where": "/storage/sdcard0/Web/Node/selfbot",
+  "author": {
+    "name": "ValentinHacker"
+  },
+  "bugs": {
+    "url": "https://github.com/ValentinHacker/NodeModule/issues"
+  },
+  "contributors": [
+    {
+      "name": "ValentinHacker",
+      "email": "alternativexxxy@gmail.com",
+      "url": "https://github.com/ValentinHacker"
+    }
+  ],
+  "dependencies": {},
+  "description": "A backend module, global polyfill + upgrades",
+  "devDependencies": {},
+  "engines": {
+    "node": "8.3.0"
+  },
+  "homepage": "https://github.com/ValentinHacker/NodeModule#readme",
+  "keywords": [
+    "node",
+    "js",
+    "module"
+  ],
+  "license": "ISC",
+  "main": "nodemodule.js",
+  "name": "nodemodule",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ValentinHacker/NodeModule.git"
+  },
+  "scripts": {
+    "start": "node nodemodule.js"
+  },
+  "version": "1.0.0"
+}
