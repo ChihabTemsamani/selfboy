@@ -7,4 +7,5 @@ Discord SelfBot (*UserBot*)
   
 ***  
   
-***Please use a device screen event handler (like "Tasker" for mobile) to perform "status.txt" updates***
+***Please use a device screen event handler (like "Tasker" for mobile) to perform "status.txt" updates***  
+*Heroku-build*
