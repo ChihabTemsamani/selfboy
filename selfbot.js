@@ -13,7 +13,7 @@ snd = function snd(chan,data) {
 	return clt.channels.find("id",chan+"").send(data);
 };
 var bots = [];
-tkn = ["MjY2OTE1Mjk4NjY0MzgyNDY0.DH8iwg.1VueyrqQuKNUF7HLDXbr9-R6aPE","MjkxNTQzODcyNjY2ODYxNTY4.DGRQpw.GJrMjyGxFjtK3aR6VpVMNm6Yk4E"/*,"MzUzNTU2NDg0Mjc5NTAwODAx.DTpwLA.jpob0yvq62itF-hfBEiXY6ZvDUE"/*,"MzE0Njc1NDU2NDcxMzM0OTEy.DIRpbw.PeIxDuhoI-Do9XT4WEMgYs8ri14","MjcyNTkyNzU4MzI4MjYyNjY4.DSzscw.m0xtcXw8o9WAB1ud3KW5fHu_tn0"*/];
+tkn = [];
 tkn.each((tkn,ind)=>{
 	let sav = function sav(src) {
 		return fs.writeFileSync(src?src:save,JSON.stringify(bot,null,2));
