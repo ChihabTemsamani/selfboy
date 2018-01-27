@@ -1,0 +1,24 @@
+{
+  "name": "Vale",
+  "description": "Necessary component of Heroku pipelines review.",
+  "scripts": {
+  },
+  "env": {
+    "tokens": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
