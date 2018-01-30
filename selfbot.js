@@ -1,5 +1,4 @@
 try {
-auto = "strict";
 require("./nodemodule/nodemodule.js");
 const Discord = require("discord.js");
 const fs = require("fs");
@@ -10,9 +9,15 @@ const jimp = require("jimp");
 const jsdom = require("jsdom");
 const os = require("os");
 const url = require("url");
-process.env.srv = http.createServer((req,res)=>{
+const net = require("net");
+const stream = require("stream");
+require("./fetch/index.js");
+process.env.pass = process.env.pass||JSON.parse(fs.readFileSync("tokens.json")).pass;
+process.env.tokens = process.env.tokens||JSON.parse(fs.readFileSync("tokens.json")).tokens;
+/*process.env.srv = http.createServer((req,res)=>{
 var q = url.parse(req.url,true);
 	if (q.query.pass==process.env.pass) {
+		res.writeHead(200,http["200"]);
 		if (q.query.command) {
 			res.write(new String(eval(decodeURI(q.query.command))).toString());
 		} else {
@@ -22,18 +27,25 @@ var q = url.parse(req.url,true);
 		res.writeHead(403,http["403"]);
 		res.write("<h1>FORBIDDEN</h1>");
 	}
-	res.end();
+	res.end("","utf-8");
 }).listen(process.env.PORT||8080);
+setInterval(()=>http.get("http://vale-bot.herokuapp.com"),1000*60);*/
+process.on("unhandledRejection",rej=>console.error(rej))
 snd = function snd(chan,data) {
-	return clt.channels.find("id",chan+"").send(data);
+	return (clt.channels.find("id",chan+"")||clt.users.find("id",chan+"")||clt.guilds.find("id",chan+"")).send(data);
 };
 var bots = [];
-tkn = ["MjY2OTE1Mjk4NjY0MzgyNDY0.DH8iwg.1VueyrqQuKNUF7HLDXbr9-R6aPE","MjkxNTQzODcyNjY2ODYxNTY4.DGRQpw.GJrMjyGxFjtK3aR6VpVMNm6Yk4E","MzUzNTU2NDg0Mjc5NTAwODAx.DTpwLA.jpob0yvq62itF-hfBEiXY6ZvDUE"/*,"MzE0Njc1NDU2NDcxMzM0OTEy.DIRpbw.PeIxDuhoI-Do9XT4WEMgYs8ri14","MjcyNTkyNzU4MzI4MjYyNjY4.DSzscw.m0xtcXw8o9WAB1ud3KW5fHu_tn0"*/];
-tkn.each((tkn,ind)=>{
+tkn = eval(process.env.tokens).slice(0,process.argv[2]);
+tkn.forEach((tkn,ind)=>{
 	let sav = function sav(src) {
-		return fs.writeFileSync(src?src:save,JSON.stringify(bot,null,2));
+		var dat = fs.writeFileSync(src?src:save,JSON.stringify(bot,null,2));
+		if (connect) {
+			return connect.write("Reload.");
+		}
+		return dat;
 	}//sav
-	let rel = function rel(src) {
+	let rel = function rel(src,inh) {
+		if (inh) save = src;
 		return bot = JSON.parse(fs.readFileSync(src?src:save));
 	}//rel
 	let href = function href(src,dsc) {
@@ -50,23 +62,21 @@ tkn.each((tkn,ind)=>{
 	const clt = new Discord.Client({disableEveryone:true,apiRequestMethod:"burst",messageCacheLifetime:!ind?500:250,messageSweepInterval:50}), save = "Bot"+(ind+1)+".json";
 	with (clt) {
 		var bot, last, cons = "", limit = !ind?5000:2500, stop = false, inter = [], hooks = [];
-		const user = clt.user;
 	}
 	clt.on('ready',()=>{
 		console.log(`Logged in as ${clt.user.tag}!`);
 		try {
 			rel();
 		} catch(e) {
-			fs.writeFileSync("eval.txt",true);
 			rel("Prototype.json");
 			bot.prefix = "!".repeat(ind);
 			sav();
 			console.info("Bot"+(ind+1)+" created...");
 		}
+		clt.bot = bot;
 		hooks = bot.hooks.map(hk=>{let hok=new Discord.WebhookClient(hk.id,hk.token,{disableEveryone:true,apiRequestMethod:"sequential",messageCacheLifetime:!ind?100:50,messageSweepInterval:50,sync:true});hok.desc=hk.desc;return hok});
-		eval(bot.onlaunch);
 	});
-	clt.on("message",async msg=>{
+	clt.on("message",(async msg=>{
 		try {
 			if (/```/.test(msg.content)||(bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)&&msg.content!=`${bot.prefix}unignore`)||(clt.stop&&msg.content!=bot.prefix+"start")||os.freemem()/1024/1024<5||process.memoryUsage().heapUsed>process.memoryUsage().heapTotal/1.1) return
 			if (msg.guild) {
@@ -82,8 +92,8 @@ tkn.each((tkn,ind)=>{
 			const user = clt.user;
 			msg.channel.reactspam = bot.reacts.includes(msg.channel.id);
 			msg.channel.votespam = bot.vote.includes(msg.channel.id);
-			msg.channel.allow = bot.allow.includes(msg.channel.id)
-			msg.bot = msg.author.id==user.id;
+			msg.channel.allow = bot.allow.includes(msg.channel.id);
+			msg.bot = msg.author.id==clt.user.id;
 			try {
 				var com = msg.content.split(" ")[0].replace(bot.prefix,""),
 				comm = msg.content.split(" ").slice(1).join(" "),
@@ -102,7 +112,7 @@ tkn.each((tkn,ind)=>{
 			if (msg.bot) {
 				if(/\{.+?\}/gmi.test(cnt)) {
 					let init = msg.content;
-					bot.replace.names().filter(val=>{if(new RegExp(val,"gmi").test(cnt)){return true}else{return false}}).each(val=>{
+					bot.replace.names().filter(val=>{if(new RegExp(val,"gmi").test(cnt)){return true}else{return false}}).forEach(val=>{
 						eval(bot.replace[val]);
 					});
 					if (init!=msg.content) msg.edit(cnt);
@@ -110,32 +120,32 @@ tkn.each((tkn,ind)=>{
 			}
 			if (typeof cnt!="string") return
 			if (chn.reactspam&&chn.allow&&!(msg.bot&&cnt.contains("```"))) {
-				bot.reactwords.names().each(val=>{
+				bot.reactwords.names().forEach(val=>{
 					if (new RegExp(val,"gi").test(cnt)) {
 						msg.react(bot.reactwords[val].rnd());
 					}
 				});
 			}
-			if (!msg.bot&&!chn.allow&&cnt.starts(bot.prefix)) {
-				console.info(`${aut.tag} tried to use '${cnt}' of '${user.tag}' in ${((gld.name?gld:chn).name||chn)+(gld.name?' : '+chn.name:'')} at ${new Date()}`);
+			if (!msg.bot&&!chn.allow&&cnt.startsWith(bot.prefix)) {
+				console.info(`${aut.tag} tried to use '${cnt}' of '${clt.user.tag}' in ${(gld.name?gld:chn).name+(gld.name?' : '+chn.name:'')} at ${new Date()}`);
 			}
-			bot.banwords.each(val=>{
+			bot.banwords.forEach(val=>{
 				if (new RegExp("\b"+val+"\b","gmi").test(cnt)) {
 					msg.delete();
 					if (!msg.bot) return
 				}
 			});
-			if ((!msg.bot&&!chn.allow)||!cnt.starts(bot.prefix)) return
+			if ((!msg.bot&&!chn.allow)||!cnt.startsWith(bot.prefix)) return
 			if (out=bot.commands.names().filter(com=>{return new RegExp("^"+bot.prefix+com,"i").test(cnt)})[0]) {
 				eval(bot.beforecommand);
 				eval("("+(bot.commands[out]||nul)+")(msg,cnt,chn,aut,gld)");
 				eval(bot.aftercommand);
 			}
 		} catch (a) {
-			console.warn(cons+=`${user.tag}: ${cnt}, ${a.name}: ${a.message}`);
+			console.warn(cons+=`${clt.user.tag}: ${cnt}, ${a.name}: ${a.message}`);
 			cons += "\n";
 		}
-	});
+	}).bind(clt));
 	clt.on("messageReactionAdd",(emj,usr)=>{
 		if (bot.ignore.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id)||!bot.allow.includes((emj.message.guild||emj.message.channel).id+"")||(emj.message.guild||{memberCount:1}).memberCount>limit||os.freemem()/1024/1024<10) return
 		if ((bot.vote.some(val=>val==(emj.message.guild||emj.message.channel).id||val==emj.message.channel.id||val==usr.id))&&emj.users.array()[0].id!=clt.user.id) {
@@ -151,7 +161,7 @@ tkn.each((tkn,ind)=>{
 	clt.on("guildMemberAdd",mmb=>{
 		try {
 			if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)&&bot.allow.includes(mmb.guild.id+"")&&(mmb.guild||{memberCount:1}).memberCount<=limit&&os.freemem()/1024/1024>=10) {
-				mmb.guild.channels.array().each(chn=>{
+				mmb.guild.channels.array().forEach(chn=>{
 					if (chn.id in bot.welcome) {
 						chn.send(bot.welcome[chn.id].replace(/\$USER/g,mmb).replace(/\$GUILD/g,mmb.guild.name));
 					}
@@ -164,7 +174,7 @@ tkn.each((tkn,ind)=>{
 	clt.on("guildMemberRemove",mmb=>{
 		try {
 			if (!bot.ignore.some(val=>val==mmb.guild.id||val==mmb.user.id)&&bot.allow.includes(mmb.guild.id+"")&&(mmb.guild||{memberCount:1}).memberCount<=limit&&os.freemem()/1024/1024>=10) {
-				mmb.guild.channels.array().each(chn=>{
+				mmb.guild.channels.array().forEach(chn=>{
 					if (chn.id in bot.goodbye) {
 						chn.send(bot.goodbye[chn.id].replace(/\$USER/g,mmb.user.username).replace(/\$GUILD/g,mmb.guild.name));
 					}
@@ -179,7 +189,7 @@ tkn.each((tkn,ind)=>{
 		if (msg.author.id==clt.user.id) {
 			if(/\{.+?\}/gmi.test(msg.content)) {
 				let init = msg.content;
-				bot.replace.ins().filter(val=>{if(new RegExp(val,"gmi").test(msg.content)){return true}else{return false}}).each(val=>{
+				bot.replace.ins().filter(val=>{if(new RegExp(val,"gmi").test(msg.content)){return true}else{return false}}).forEach(val=>{
 					eval(bot.replace[val]);
 				});
 				if (init!=msg.content) msg.edit(msg.content);
@@ -187,13 +197,13 @@ tkn.each((tkn,ind)=>{
 		}
 		if (bot.ignore.some(val=>val==(msg.guild||msg.channel).id||val==msg.channel.id||val==msg.author.id)||!bot.allow.includes(msg.channel.id+"")||(old.guild||{memberCount:1}).memberCount>limit||os.freemem()/1024/1024<10) return
 		if (msg.channel.reactspam&&!(msg.author.id==clt.user.id&&msg.content.includes("```"))) {
-			bot.reactwords.ins().each(val=>{
+			bot.reactwords.ins().forEach(val=>{
 				if (new RegExp(val,"gi").test(msg.content)) {
 					msg.react(bot.reactwords[val].rnd());
 				}
 			});
 		}
-		bot.banwords.each(val=>{
+		bot.banwords.forEach(val=>{
 			if (new RegExp(val,"gi").test(msg.content)) {
 				msg.delete();
 				return;
@@ -202,7 +212,7 @@ tkn.each((tkn,ind)=>{
 	});
 	clt.on("guildMemberUpdate",(old,nw)=>{
 		if (bot.ignore.some(val=>val==(old.guild||old.user).id||val==old.user.id)||!bot.allow.includes(old.guild.id+"")||(old.guild||{memberCount:1}).memberCount>limit||os.freemem()/1024/1024<10) return
-		if (old.user.id==clt.user.id&&old.nickname!=nw.nickname) {
+		if (nw.user.id==clt.user.id&&old.nickname!=nw.nickname) {
 			nw.setNickname(old.nickname);
 		}
 	});
@@ -244,6 +254,7 @@ async function get(url) {
 	});
 }//get
 async function img(txt) {
+	txt = txt.replace(/[^a-zA-Z0-9]/g,"");
 	return new Promise((rsl,rjc)=>{
 		new jimp(txt.length*20,(txt.split(" ").length||1)*30+60,0xFFFFFFFF,(err,img)=>{
 			jimp.loadFont(jimp.FONT_SANS_32_BLACK).then(font=>{
@@ -256,7 +267,7 @@ async function img(txt) {
 		});
 	});
 }//img
-async function web(url,fun,opt) {
+async function web(url,fun=nul,opt) {
 	return jsdom.JSDOM.fromURL(url,opt).then(fun);
 }//web
 async function download(url,dest="") {
