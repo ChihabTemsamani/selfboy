@@ -1,1 +1,2 @@
-web: npm start --no-deprecation
+web: npm start
+worker: node index.js

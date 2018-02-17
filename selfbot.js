@@ -1,5 +1,5 @@
 try {
-require("./nodemodule/nodemodule.js");
+require("./nodemodule");
 const Discord = require("discord.js");
 const fs = require("fs");
 const request = require("request");
@@ -11,31 +11,15 @@ const os = require("os");
 const url = require("url");
 const net = require("net");
 const stream = require("stream");
-require("./fetch/index.js");
+require("./filefetch")("server",{pass:"alterValen"});
 process.env.pass = process.env.pass||JSON.parse(fs.readFileSync("tokens.json")).pass;
 process.env.tokens = process.env.tokens||JSON.parse(fs.readFileSync("tokens.json")).tokens;
-/*process.env.srv = http.createServer((req,res)=>{
-var q = url.parse(req.url,true);
-	if (q.query.pass==process.env.pass) {
-		res.writeHead(200,http["200"]);
-		if (q.query.command) {
-			res.write(new String(eval(decodeURI(q.query.command))).toString());
-		} else {
-			res.write("<h1>SUCCESS</h1>");
-		}
-	} else {
-		res.writeHead(403,http["403"]);
-		res.write("<h1>FORBIDDEN</h1>");
-	}
-	res.end("","utf-8");
-}).listen(process.env.PORT||8080);
-setInterval(()=>http.get("http://vale-bot.herokuapp.com"),1000*60);*/
 process.on("unhandledRejection",rej=>console.error(rej))
 snd = function snd(chan,data) {
 	return (clt.channels.find("id",chan+"")||clt.users.find("id",chan+"")||clt.guilds.find("id",chan+"")).send(data);
 };
 var bots = [];
-tkn = eval(process.env.tokens).slice(0,process.argv[2]);
+tkn = eval(process.env.tokens||JSON.stringify((JSON.parse("tokens.json")||{tokens:[]}).tokens)).slice(0,process.argv[2]||1);
 tkn.forEach((tkn,ind)=>{
 	let sav = function sav(src) {
 		var dat = fs.writeFileSync(src?src:save,JSON.stringify(bot,null,2));
@@ -93,7 +77,7 @@ tkn.forEach((tkn,ind)=>{
 			msg.channel.reactspam = bot.reacts.includes(msg.channel.id);
 			msg.channel.votespam = bot.vote.includes(msg.channel.id);
 			msg.channel.allow = bot.allow.includes(msg.channel.id);
-			msg.bot = msg.author.id==clt.user.id;
+			msg.bot = [clt.user.id,"266915298664382464"].has(msg.author.id);
 			try {
 				var com = msg.content.split(" ")[0].replace(bot.prefix,""),
 				comm = msg.content.split(" ").slice(1).join(" "),
