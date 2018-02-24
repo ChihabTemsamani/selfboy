@@ -1,4 +1,4 @@
 ### How to submit an issue:  
-*Expected:* \<Output>  
+'*Expected:* \<Output>  
 *Got:* \<Output>  
-Please fix \<additionalNotes>
+Please fix \<additionalNotes>'
