@@ -1,6 +1,6 @@
 err = "";
 try {
-if(typeof auto=="undefined") auto = true;
+if(typeof auto=="undefined") auto = "strict";
 /*  <true> : manual becomes automated,
 	strict : getters/setters,
 	heavy : slow funcs replace normal funcs,
@@ -12,7 +12,9 @@ if(typeof auto=="undefined") auto = true;
 	unlock : canvas funcs keep previous path,
 	lock : canvas funcs always begin new paths - auto initial centering
 */
-if (typeof Auto=="undefined") Auto = new Number(0);
+AUTO = new Object();
+Object.defineProperties(AUTO,{STRICT:{value:1,writable:false,configurable:false},HEAVY:{value:2,writable:false,configurable:false},LIGHT:{value:4,writable:false,configurable:false},NOCENTER:{value:8,writable:false,configurable:false},FILL:{value:16,writable:false,configurable:false},STROKE:{value:32,writable:false,configurable:false},FULL:{value:64,writable:false,configurable:false},UNLOCK:{value:128,writable:false,configurable:false},LOCK:{value:256,writable:false,configurable:false}});
+if (typeof Auto=="undefined") Auto = AUTO.STRICT;
 /*
 	Auto |= Constant //add once
 	Auto ^= Constant //toggle
@@ -25,8 +27,6 @@ falseReg = /^(false|null|""|''|0|off|no|[]|{}|``|)$/gi;
 alph = "abcdefghijklmnopqrtsuvwxyz";
 ALPH = alph.toUpperCase();
 Alph = (alph+ALPH+"0123456789");
-AUTO = new Object();
-Object.defineProperties(AUTO,{STRICT:{value:1,writable:false,configurable:false},HEAVY:{value:2,writable:false,configurable:false},LIGHT:{value:4,writable:false,configurable:false},NOCENTER:{value:8,writable:false,configurable:false},FILL:{value:16,writable:false,configurable:false},STROKE:{value:32,writable:false,configurable:false},FULL:{value:64,writable:false,configurable:false},UNLOCK:{value:128,writable:false,configurable:false},LOCK:{value:256,writable:false,configurable:false}});
 cmp = function cmp(arr) {
 	var nar = [];
 	for (var mat = 0; mat < arr.length; mat++) {
@@ -135,34 +135,48 @@ swt = function swt(a) {
 	return auto;
 }//swt
 swt();
-if(!Array.prototype.datatype){Array.prototype.__defineGetter__("datatype",function() {
-	var type = 0;
-	for (var stp = 0; stp < this.length; stp++) {
-		if ((typeof this[stp]=="number"&&!type)||(typeof this[stp]=="string"&&type<2)||((this[stp] instanceof Array)&&type<3)||((this[stp] instanceof Object)&&type<4)) {
-			type++
+if (Object.prototype.__defineGetter__&&Object.prototype.__defineSetter__) {
+	if(!Array.prototype.datatype){Array.prototype.__defineGetter__("datatype",function() {
+		var type = 0;
+		for (var stp = 0; stp < this.length; stp++) {
+			if ((typeof this[stp]=="number"&&!type)||(typeof this[stp]=="string"&&type<2)||((this[stp] instanceof Array)&&type<3)||((this[stp] instanceof Object)&&type<4)) {
+				type++
+			}
 		}
-	}
-	return type==1?"Number":(type==2?"String":(type==3?"Array":"Object"));
-});
-Array.prototype.__defineSetter__("datatype",function() {
-	var cls = eval(this.datatype), nar = [];
-	this.forEach((function(val,ind,arr){
-		nar.push(new cls(val));
-	}).bind(this));
-	this.inh(nar);
-	return this;
+		return type==1?"Number":(type==2?"String":(type==3?"Array":"Object"));
 	});
+	Array.prototype.__defineSetter__("datatype",function() {
+		var cls = eval(this.datatype), nar = [];
+		this.forEach((function(val,ind,arr){
+			nar.push(new cls(val));
+		}).bind(this));
+		this.inh(nar);
+		return this;
+		});
+	}
+	if(!Object.prototype._ins)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("_ins",function(){return this.ins()})});
+	if(!Object.prototype._Ins)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("_Ins",function(){return this.Ins()})});
+	if(!Object.prototype._prp)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("_prp",function(){return Object.getOwnPropertyNames(this)})});
+	if(!Object.prototype.Values)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("Values",function(){return this.values()})});
+	if(!Object.prototype.Keys)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("Keys",function(){return Object.keys(this)})});
+	if(!Object.prototype.Names)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("Names",function(){return Object.names(this)})});
+	if(!Object.prototype.string)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("string",function(){return this.toString()})});
+	if(!Object.prototype.Last)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("Last",function(){return this.last()})});
+	if(!Object.prototype.First)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("First",function(){return this.first()})});
+	if(!Object.prototype.Alt)[Array,String,Number].forEach(function(each){each.prototype.__defineGetter__("Alt",function(){return this.alt()})});
+	if(!Array.prototype.Sum)Array.prototype.__defineGetter__("Sum",function(){return this.sum()});
+	if(!Array.prototype.Fac)Array.prototype.__defineGetter__("Fac",function(){return this.fac()});
+	if(!Array.prototype.Pure)Array.prototype.__defineGetter__("Pure",function(){return this.pure()});
+	if(!Array.prototype.Cmp)Array.prototype.__defineGetter__("Cmp",function(){return cmp(this)});
+	if(!Array.prototype.Rnd)Array.prototype.__defineGetter__("Rnd",function(){return this.rnd()});
+	if(!Array.prototype.Shf)Array.prototype.__defineGetter__("Shf",function(){return this.clone().shf()});
+	if(!Array.prototype.Max)Array.prototype.__defineGetter__("Max",function(){return this.max()});
+	if(!Array.prototype.Min)Array.prototype.__defineGetter__("Min",function(){return this.min()});
+	if(!String.prototype.Bool)String.prototype.__defineGetter__("Bool",function(){return this.bool()});
+	if(!Number.prototype.Sig)Number.prototype.__defineGetter__("Sig",function(){return this.sig()});
+} else {
+	console.warn("Object.prototype.__defineGetter__  and/or  Object.prototype.__defineGetter__  are deprecated.");
 }
-if(!Array.prototype.Sum)Array.prototype.__defineGetter__("Sum",function(){return this.sum();});
-if(!Array.prototype.Fac)Array.prototype.__defineGetter__("Fac",function(){return this.fac()});
-if(!Array.prototype.Pure)Array.prototype.__defineGetter__("Pure",function(){return this.pure()});
-if(!Array.prototype.Cmp)Array.prototype.__defineGetter__("Cmp",function(){return cmp(this)});
-if(!Array.prototype.Rnd)Array.prototype.__defineGetter__("Rnd",function(){return this.rnd()});
-if(!Array.prototype.Shf)Array.prototype.__defineGetter__("Shf",function(){return this.clone().shf()});
-if(!Array.prototype.Max)Array.prototype.__defineGetter__("Max",function(){return this.max()});
-if(!Array.prototype.Min)Array.prototype.__defineGetter__("Min",function(){return this.min()});
-if(!String.prototype.Bool)String.prototype.__defineGetter__("Bool",function(){return this.bool()});
-if(!Number.prototype.Sig)Number.prototype.__defineGetter__("Sig",function(){return this.sig()});
 dst = function dst(x,y,d) {
 	if (x!==undefined&&y!==undefined&&d===undefined) {
 		return Math.sqrt(Math.pow(x,2)+Math.pow(y,2));
@@ -603,7 +617,7 @@ if (Math._prp) {
 		if (!this[val]) {
 			this[val] = Math[val];
 		}
-	}).bind(this));
+	}).bind(global));
 }
 Object.prototype.last = function(off) {
 	return this[Object.keys(this)[Object.keys(this).length-1-(off?off:0)]];
@@ -754,7 +768,8 @@ Matrix = function Matrix(array) {
 }//Matrix
 exports.hlp = function hlp() {
 	console.log(hlp.toString())
-	/* cmp(array) -> converts multi-dimensional array to single-dinensional
+	/*
+	[Array.]cmp([array]) -> converts multi-dimensional array to single-dinensional
 	[Array.]rnd([from <Number>, to <Number>, non-rounded <Boolean>])|Rnd|Array.Rnd -> random number/element,leave arg(s) blank for random HEX.
 	swt([append <String>]) -> refresh specific funcs and append flags on auto switch.
 	[Math.]dst(x <Number>, y <Number>[, d <Number>]) -> provide (x,y) to calculate distance with pythagorean,provide (x||y,d) to calculate the missing parameter, (x,y,1) for degrees.
@@ -814,6 +829,7 @@ exports.hlp = function hlp() {
 	ALPH -> alph.toUpperCase()
 	Alph -> (alph+ALPH+"0123456789")
 	prefix -> ["moz","webkit","o","ms","khtml","ie"]
-	Rnd -> random HEX color*/
+	Rnd -> random HEX color
+	*/
 }//hlp
 }catch(e){err+=e+"\n"}

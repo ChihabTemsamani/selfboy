@@ -1,0 +1,45 @@
+	~~~Basic:~~~
+-ping -> Command execution delay due to connection, can also be used to check if bot is alive.
+-pings -> 3 consecutive pings.
+-members -> Check number of server members.
+-uptime -> Bot uptime (launch time) in seconds.
+-help -> Displays this screen.
+-voting -> Check if bot is auto-upvoting reactions.
+-reacting -> Check if bot reacts on keywords.
+-chid -> Channel ID.
+-servid -> Server ID.
+-id [Mention(s)<Tag>] -> User/Channel/Emoji/Role ID.
+	~~~Utility:~~~
+-rp [Times<Number>] Text<String> -> Repeat text N times.
+-[stop]say [Interval<Number>] Text<String> -> Resends (or stops) message every Interval.
+-rg Text<String> -> Converts your speech to emojis.
+-sd [Milliseconds<Number>] Text<String> -> Self destruction text (delete after time).
+-vap [Strength<Number>] Text<String> -> V a p o r w a v e d  text.
+-rev text<String> -> Reverses text.
+-dicc [Length<Number>] -> 8====D.
+-shrug -> ¯\\_(ツ)_/¯.
+-lenny -> ( ͡° ͜ʖ ͡°).
+-poll Text<String> -> Create a poll.
+-emoteurl Emote<Emoji> -> Display emoji image.
+-def Text<String> -> Oxford Dictionary definition.
+-whoIsANoob -> Picks a random person from the server.
+-note[s] -> add/read notes.
+-miku(day|cheer|what|lewd|bored|hi|peep|love|angry|kiss) -> sends Hatsune Miku pics/emojis.
+-snd text<String> -> Sends text as image as long as it's a valid filename.
+	~~~Owner-Only:~~~
+-kill[rest] -> Kills/Restarts bot.
+-(start|stop) -> pause/start bot on all servers.
+-eval Text<String> -> Execute JavaScript.
+-[un]ignore -> [De]activate bot from current server/channel.
+-[dis]allow[ status<Boolean>] -> Converts Selfbot to Userbot for current channel/server. Allows use of bot by other users.
+-commadd Command<RegEx> Code<String> -> Add new command.
+-commrem pattern<RegEx> -> Remove command.
+-repadd pattern<RegEx> replace<String> -> Replace occurences.
+-repmove pattern<RegEx> -> Remove occurence replacing.
+-vote -> Toggle reaction upvoting.
+-react -> Toggle reactions.
+-welcome message<String> -> Set welcome message.
+-goodbye message<String> -> Set goodbye message.
+-purge Length<Number> -> Delete N messages.
+-reaction Emoji<ANSIIEmoji/EmojiID> pattern<RegEx> -> Add custom auto reaction word.
+-banword pattern<RegEx> -> Delete messages that match this pattern.

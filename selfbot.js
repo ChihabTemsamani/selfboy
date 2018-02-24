@@ -11,20 +11,23 @@ const os = require("os");
 const url = require("url");
 const net = require("net");
 const stream = require("stream");
-require("./filefetch")("server",{pass:"alterValen"});
+srv = require("./filefetch")("server",{pass:"alterValen"});
+require("./filefetch")("server",{pass:"alterValen",port:process.env.PORT});
+connect = srv.connect
 process.env.pass = process.env.pass||JSON.parse(fs.readFileSync("tokens.json")).pass;
 process.env.tokens = process.env.tokens||JSON.parse(fs.readFileSync("tokens.json")).tokens;
 process.on("unhandledRejection",rej=>console.error(rej))
 snd = function snd(chan,data) {
 	return (clt.channels.find("id",chan+"")||clt.users.find("id",chan+"")||clt.guilds.find("id",chan+"")).send(data);
 };
+setInterval(()=>http.get({port:process.env.PORT},ignore=>{}),2000)
 var bots = [];
 tkn = eval(process.env.tokens||JSON.stringify((JSON.parse("tokens.json")||{tokens:[]}).tokens)).slice(0,process.argv[2]||1);
 tkn.forEach((tkn,ind)=>{
 	let sav = function sav(src) {
 		var dat = fs.writeFileSync(src?src:save,JSON.stringify(bot,null,2));
-		if (connect) {
-			return connect.write("Reload.");
+		if (connect.length) {
+			return connect[0].send("reload");
 		}
 		return dat;
 	}//sav
@@ -81,7 +84,7 @@ tkn.forEach((tkn,ind)=>{
 			try {
 				var com = msg.content.split(" ")[0].replace(bot.prefix,""),
 				comm = msg.content.split(" ").slice(1).join(" "),
-				comm2 = [(msg.content.split(" ")[1]||" ").replace(/\\s/gmi," "),msg.content.split(" ").slice(2).join(" ")];
+				comm2 = [(msg.content.split(" ")[1]?msg.content.split(" ")[1]:"").replace(/\\s/gmi," "),msg.content.split(" ").slice(2).join(" ")];
 			} catch(ignore) {}
 			try {
 				var mnts = msg.mentions.users.array(),
