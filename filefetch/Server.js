@@ -1,6 +1,6 @@
 const http = require("http"), url = require("url"), fs = require("fs-extra"), stream = require("stream");
-const PING_INTERVAL = 4000;
-module.exports = function server({ port = process.env.port || process.env.PORT || process.env.npm_package_config_port || 8080, pass = "herokujspass", silence = false, ping = process.env.ping || PING_INTERVAL } = { }) {
+const PING_INTERVAL = 5000;
+module.exports = function server({ port = process.env.port || process.env.PORT || process.env.npm_package_config_port || 8080, pass = "herokujspass", silence = false, ping = PING_INTERVAL } = { }) {
 	var srv, console = global.console;
 	//localize console
 	if (silence) console = new console.constructor(new stream.Writable(), new stream.Writable());
@@ -92,7 +92,7 @@ module.exports = function server({ port = process.env.port || process.env.PORT |
 	});
 	if (ping) {
 		srv.ping = setInterval(() => {
-			http.get({ host: process.env.app || "127.0.0.1", port: port, path: "/ping?pass=" + pass }, ignore => { }).once("error", () => clearInterval(srv.ping));
+			http.get({ host: process.env.app || "127.0.0.1", port: port, path: "/ping" }, ignore => { }).once("error", () => clearInterval(srv.ping));
 		}, ping);
 	}
 	return srv;
