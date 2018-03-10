@@ -4,7 +4,7 @@
   "description": "A Discord selfbot",
   "main": "selfbot.js",
   "scripts": {
-    "start": "node selfbot.js 3 --no-deprecation"
+    "start": "node selfbot.js 1 --no-deprecation"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
